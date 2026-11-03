@@ -7,12 +7,12 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-GRAPH_NAME = "pivot"
+GRAPH_NAME = "pivot_graph"
 
 EXTENSION_SQL = "CREATE EXTENSION IF NOT EXISTS age;"
 
-# The ledger lives in the ``pivot`` schema, which AGE creates for the graph of the same name,
-# so the graph must exist first (create_graph fails if the schema is already there).
+# AGE keeps the graph's tables in a Postgres schema named after the graph (``pivot_graph``), so
+# the relational ``pivot`` schema is not shared with it and dropping the graph cannot drop data.
 LEDGER_SQL = """
 CREATE SCHEMA IF NOT EXISTS pivot;
 CREATE TABLE IF NOT EXISTS pivot.schema_migration (

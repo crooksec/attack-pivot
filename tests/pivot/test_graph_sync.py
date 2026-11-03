@@ -90,7 +90,7 @@ def test_vertices_and_edges(seeded):
     counts = graph_sync.sync(seeded)
     assert counts["Flow"] == counts["Incident"] == counts["Report"] == 2
     assert (
-        counts["Source"] == 2 and counts["State"] == 2 and counts["Tactic"] == 2
+        counts["Source"] == 3 and counts["State"] == 2 and counts["Tactic"] == 2
     )  # upstream + manual
     assert counts["PART_OF"] == counts["REPORTED_IN"] == counts["PUBLISHED_BY"] == 2
     assert counts["CODED_AS"] == 1

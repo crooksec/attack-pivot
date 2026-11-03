@@ -1,7 +1,6 @@
 -- ATT&CK-pivot relational schema (SPEC §4). Source of truth; the AGE graph is derived.
--- WARNING: the AGE graph is named 'pivot' and AGE keeps graph tables in a Postgres schema of
--- the same name, i.e. this schema. NEVER call ag_catalog.drop_graph('pivot', true): the CASCADE
--- drops every table below. Rebuild the graph by deleting its vertices/edges instead.
+-- The AGE graph is named 'pivot_graph' so that its Postgres schema does not collide with this one
+-- (a graph named 'pivot' would share the namespace, and dropping it would cascade over these tables).
 
 CREATE SCHEMA IF NOT EXISTS pivot;
 SET LOCAL search_path = pivot, public;

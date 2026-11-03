@@ -27,6 +27,17 @@ UPSTREAM_SOURCE = {
     "reliability": "A",
     "enabled": True,
 }
+EMULATION_SOURCE = {
+    "name": "CTID Adversary Emulation Library",
+    "publisher": "MITRE CTID",
+    "source_class": "emulation",
+    "base_url": "https://github.com/center-for-threat-informed-defense/adversary_emulation_library",
+    "collector": "github_repo",
+    "default_tlp": "clear",
+    "licence": "Apache-2.0",
+    "reliability": "A",
+    "enabled": True,
+}
 MANUAL_SOURCE = {
     "name": "Manual import",
     "publisher": None,
@@ -39,6 +50,9 @@ MANUAL_SOURCE = {
     "enabled": True,
 }
 UPSTREAM_URL = "https://github.com/center-for-threat-informed-defense/attack-flow/blob/main/corpus/{name}"
+
+# Upstream corpus flows that are CTID emulation plans: ordered, but a separate source class (R1).
+EMULATION_FLOWS = {"Turla - Carbon Emulation Plan", "Turla - Snake Emulation Plan"}
 
 # Flows whose edges are known not to be temporal order (checked during P0.5).
 UNORDERED_FLOWS = {"Example Attack Tree"}
@@ -249,6 +263,7 @@ def ingest_paths(conn, paths, *, version=None, tlp=None):
         raise RuntimeError(f"ATT&CK {version} has no techniques; run `afp attack sync`")
     upstream_source = ensure_source(conn, UPSTREAM_SOURCE)
     manual_source = ensure_source(conn, MANUAL_SOURCE)
+    emulation_source = ensure_source(conn, EMULATION_SOURCE)
     conn.commit()
 
     ingested, skipped, total = [], [], Counter()
@@ -268,6 +283,8 @@ def ingest_paths(conn, paths, *, version=None, tlp=None):
                 upstream_source,
                 "clear",
             )
+            if parsed.name in EMULATION_FLOWS:
+                source_id = emulation_source
         else:
             parsed, kind, source_id, flow_tlp = (
                 parse_stix(raw, name=path.stem),

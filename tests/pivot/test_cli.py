@@ -40,4 +40,4 @@ def test_connect_loads_age(pivot_url):
         names = [
             r["name"] for r in conn.execute("SELECT name FROM ag_graph").fetchall()
         ]
-    assert "pivot" in names
+    assert "pivot_graph" in names

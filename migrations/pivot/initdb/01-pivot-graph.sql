@@ -6,8 +6,8 @@ SET search_path = ag_catalog, "$user", public;
 
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_graph WHERE name = 'pivot') THEN
-        PERFORM ag_catalog.create_graph('pivot');
+    IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_graph WHERE name = 'pivot_graph') THEN
+        PERFORM ag_catalog.create_graph('pivot_graph');
     END IF;
 END
 $$;

@@ -1,18 +1,18 @@
 """Materialize the AGE graph from the relational tables (SPEC §8.1).
 
 The graph is derived and fully rebuildable: ``sync`` deletes every vertex and edge with Cypher
-and recreates them. It never drops the graph itself (AGE's drop function cascades), because AGE keeps the graph's tables in the
-``pivot`` schema, the same schema as the relational source of truth.
+and recreates them. The graph lives in its own ``pivot_graph`` schema, apart from the relational
+tables.
 """
 
 import logging
 
+from attack_pivot.db.migrate import GRAPH_NAME as GRAPH
 from attack_pivot.graph.age import cypher
 from attack_pivot.ingest import car
 from attack_pivot.ingest.load import latest_attack_version
 
 logger = logging.getLogger(__name__)
-GRAPH = "pivot"
 
 VERTEX_LABELS = [
     "Technique", "Tactic", "Group", "Incident", "Flow", "Report", "Source", "Analytic",

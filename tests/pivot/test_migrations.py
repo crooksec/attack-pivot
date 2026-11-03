@@ -34,7 +34,7 @@ def test_init_creates_spec_schema_and_graph(scratch_db_url):
         graphs = [
             r["name"] for r in conn.execute("SELECT name FROM ag_catalog.ag_graph")
         ]
-        assert graphs == ["pivot"]
+        assert graphs == ["pivot_graph"]
 
 
 def test_migrate_is_idempotent(scratch_db_url):
@@ -102,7 +102,7 @@ def test_one_active_model_run(scratch_db_url):
 
 
 def test_no_code_drops_the_graph():
-    """drop_graph(..., true) would cascade-drop the relational schema (same name)."""
+    """Defence in depth: the graph has its own schema now, but nothing should drop it anyway."""
     root = Path(__file__).resolve().parents[2]
     for path in [
         *(root / "src" / "attack_pivot").rglob("*.py"),

@@ -47,7 +47,7 @@ collectors ─┤ RSS / sitemap / bulk repo / manual URL list       │
 ## 3. Infrastructure
 
 - `docker-compose.pivot.yml` adds:
-  - `pivot-db`: image `apache/age` (pin a tag supporting PG 16 or 17 with AGE ≥ 1.6; verify the current tag at build time; AGE 1.7.0 targets PG 18). Persistent volume. Init script runs `CREATE EXTENSION age; LOAD 'age'; SET search_path = ag_catalog, "$user", public;` and `SELECT create_graph('pivot');`.
+  - `pivot-db`: image `apache/age` (pin a tag supporting PG 16 or 17 with AGE ≥ 1.6; verify the current tag at build time; AGE 1.7.0 targets PG 18). Persistent volume. Init script runs `CREATE EXTENSION age; LOAD 'age'; SET search_path = ag_catalog, "$user", public;` and `SELECT create_graph('pivot_graph');` (the graph is not named `pivot`: AGE keeps a graph's tables in a schema of the same name, which would collide with the relational schema `pivot`).
   - `attack-flow-api`: gains env `PIVOT_DATABASE_URL`. The pivot router mounts only if this is set.
   - `pivot-explorer`: static build served by the existing nginx proxy at `/explorer/`.
 - Python deps (new poetry group `pivot`): `psycopg[binary]>=3.2`, `numpy`, `scipy`, `pyyaml`, `feedparser`, `httpx`, `rapidfuzz`. Use the existing `networkx`.

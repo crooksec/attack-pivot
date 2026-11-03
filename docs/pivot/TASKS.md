@@ -3,7 +3,7 @@
 Ordered. Each task: scope → acceptance. § refers to `SPEC.md`. Do not start a phase until the previous phase's exit criteria pass (exception: P4 may start after P1).
 
 ## P0 Foundation
-- **P0.1 Infra.** `docker-compose.pivot.yml` with `pivot-db` (Apache AGE image, pinned), init SQL, volume; `PIVOT_DATABASE_URL`. → `docker compose -f docker-compose.pivot.yml up` gives a DB where `SELECT * FROM ag_catalog.ag_graph` lists `pivot`. (§3)
+- **P0.1 Infra.** `docker-compose.pivot.yml` with `pivot-db` (Apache AGE image, pinned), init SQL, volume; `PIVOT_DATABASE_URL`. → `docker compose -f docker-compose.pivot.yml up` gives a DB where `SELECT * FROM ag_catalog.ag_graph` lists `pivot_graph`. (§3)
 - **P0.2 Package skeleton.** `src/attack_pivot/` (db, ingest, normalize, dedupe, model, graph, coverage, pivot, api, cli). Poetry group `pivot`, `afp` entry point. → `afp --help` works; `pytest tests/pivot` runs.
 - **P0.3 Migrations.** `migrations/pivot/0001_init.sql` implementing §4. `afp db init|migrate`. → Idempotent; schema test passes.
 - **P0.4 ATT&CK sync.** `afp attack sync --version 19.1`. → Techniques, tactics, revoked chains, groups and aliases loaded; revoked-chain unit test.

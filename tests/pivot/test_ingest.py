@@ -184,3 +184,18 @@ def test_cli_ingest(scratch_db_url, capsys):
     assert "ingested 41 flows, skipped 0" in capsys.readouterr().out
     assert main(argv) == 0
     assert "ingested 0 flows, skipped 41" in capsys.readouterr().out
+
+
+def test_emulation_plans_get_their_own_source_class(db):
+    load.ingest_paths(db, CORPUS)
+    rows = db.execute(
+        "SELECT s.source_class, array_agg(f.name ORDER BY f.name) AS flows FROM pivot.flow f "
+        "JOIN pivot.report r ON r.id = f.report_id JOIN pivot.source s ON s.id = r.source_id "
+        "GROUP BY s.source_class"
+    ).fetchall()
+    by_class = {r["source_class"]: r["flows"] for r in rows}
+    assert by_class["emulation"] == [
+        "Turla - Carbon Emulation Plan",
+        "Turla - Snake Emulation Plan",
+    ]
+    assert len(by_class["independent"]) == 39
