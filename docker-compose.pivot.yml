@@ -1,0 +1,26 @@
+# ATT&CK-pivot services. Usage:
+#   cp .env.pivot.example .env.pivot   # then set PIVOT_DB_PASSWORD
+#   docker compose --env-file .env.pivot -f docker-compose.pivot.yml up -d pivot-db
+# Image digest recorded in docs/pivot/context/decisions.md.
+
+services:
+  pivot-db:
+    image: apache/age:release_PG17_1.7.0
+    environment:
+      POSTGRES_USER: ${PIVOT_DB_USER:-pivot}
+      POSTGRES_PASSWORD: ${PIVOT_DB_PASSWORD:?set PIVOT_DB_PASSWORD in .env.pivot}
+      POSTGRES_DB: ${PIVOT_DB_NAME:-pivot}
+    ports:
+      - "127.0.0.1:${PIVOT_DB_PORT:-5433}:5432"
+    volumes:
+      - pivot-db-data:/var/lib/postgresql/data
+      - ./migrations/pivot/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PIVOT_DB_USER:-pivot} -d ${PIVOT_DB_NAME:-pivot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pivot-db-data:
