@@ -53,6 +53,7 @@ def main(argv=None):
 from attack_pivot.cli import (
     attack,
     car,
+    collect,
     db,
     graph,
     ingest,
@@ -61,4 +62,4 @@ from attack_pivot.cli import (
     vcdb,
 )  # noqa: E402
 
-COMMAND_MODULES = [db, attack, sources, car, vcdb, ingest, model, graph]
+COMMAND_MODULES = [db, attack, sources, collect, car, vcdb, ingest, model, graph]
