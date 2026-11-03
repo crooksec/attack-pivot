@@ -1,1 +1,1 @@
-"""ATT&CK-pivot dedupe package."""
+"""Incident deduplication (SPEC §5.5)."""
