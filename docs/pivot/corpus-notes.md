@@ -89,7 +89,7 @@ Live run (`afp vcdb sync`) on `vz-risk/VCDB` `data/json/validated` (cloned 2026-
 
 | Measure | Value |
 |---|---|
-| Records (files) / distinct `incident_id` | 10,047 / 10,003 (44 files reuse an id; 23 ids; keyed `id~file-stem`, all 10,047 kept) |
+| Records (files) / distinct `incident_id` | 10,047 / 10,003 (23 ids are shared by 67 files; contents differ in 21 of the 23 groups; those files are keyed `id~file-stem` so all 10,047 are kept) |
 | VERIS schema versions | 1.4.0: 9,907 · 1.4.1: 111 · 1.3.7: 26 · 1.3.5: 2 · 1.3.6: 1 |
 | Have any `plus.event_chain` | 2,280 (**22.7 %**) |
 | Have an ordered chain with ≥ 2 steps (the minimum for a transition) | **1,247 (12.4 %)**; chain lengths 1:1,033 · 2:273 · 3:164 · 4:804 · 5:5 · 6:1 |
@@ -110,10 +110,10 @@ candidate techniques (the 1/k weighting in SPEC §6.6) and there is no way to sa
 
 1. **Technique level: none.** `mapped_coarse` is excluded from the technique model by design, and
    the ambiguity above would make any technique pair a guess.
-2. **Tactic level: small and soft.** Realistically ≤ 268 incidents (2.7 % of VCDB) can give a
-   tactic-to-tactic transition without inventing data, and at most a few hundred more if records with
-   one unmapped step are accepted. Against the M-Proof target of 5,000 ordered transitions this is a
-   cross-check, not a source of volume.
+2. **Tactic level: small and soft.** At most 268 incidents (2.7 % of VCDB) have every chain
+   step mappable; if records with partially mappable chains were accepted the ceiling would be the
+   1,247 sequence records (12.4 %), before the AI-encoded ones. Against the M-Proof target of 5,000
+   ordered transitions this is a cross-check, not a source of volume.
 3. **Where VCDB is worth it now:** base rates (industry, size, actor type, year, 22.7 % chain
    coverage), context for the bias diagnostic (VCDB-vs-rest divergence) and the action-category
    transition table above, which needs no ATT&CK mapping at all.
@@ -121,7 +121,7 @@ candidate techniques (the 1/k weighting in SPEC §6.6) and there is no way to sa
    decision first: `transition_obs`/`action_obs` have no weight column for the 1/k candidates, and the
    tactic-level derivation rule (which tactic does a malware→social pair mean?) is unspecified.
    `veris_incident.flow_id` stays NULL, so there are no `CODED_AS` edges yet.
-5. **Caveats.** The mapping targets VERIS 1.3.7 / ATT&CK 12.1 while 98.6 % of VCDB is 1.4.x, so
+5. **Caveats.** The mapping targets VERIS 1.3.7 / ATT&CK 12.1 while 99.7 % of VCDB is 1.4.x, so
    values added in 1.4 cannot map. `overridden/` records are not loaded (SPEC names `validated/`
    only). 10 records are AI-encoded, all sequence records, so any sequence statistic should be
    reported with and without them. Licence is CC BY-SA 4.0.
