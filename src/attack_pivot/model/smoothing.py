@@ -18,6 +18,11 @@ is about 700 × 700.
 
 The marginal of the Dirichlet posterior is ``Beta(n_ab + α·q, n_a − n_ab + α·(1 − q))``; the
 reported interval is its 5th–95th percentile.
+
+Caveat: for a prior-only cell (n_ab = 0) the Beta's first shape ``α·q`` is far below 1, so the
+distribution is extremely right-skewed and its mean ``p`` can lie *above* the 95th percentile. For
+observed cells (n_ab > 0) the mean is always inside. The quantiles are stored as defined; consumers
+must not assume ``ci_low <= p <= ci_high`` for n_ab == 0.
 """
 
 from dataclasses import dataclass

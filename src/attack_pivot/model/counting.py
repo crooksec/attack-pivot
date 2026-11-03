@@ -62,6 +62,8 @@ class Incident:
     transitions: dict  # (src state, dst state) -> weight
     first_seen: object = None
     source_classes: tuple = ()
+    flows: int = 0
+    tlps: tuple = ()
 
 
 def flow_transitions(flow, params, taxonomy):
@@ -212,10 +214,18 @@ def load_incidents(conn, params, taxonomy, corpus_filter=None):
         by_incident[f["incident_id"]].append(
             FlowGraph(f["incident_id"], actions[f["flow_id"]], edges[f["flow_id"]])
         )
-        meta.setdefault(
-            f["incident_id"], {"first_seen": f["first_seen"], "classes": set()}
+        m = meta.setdefault(
+            f["incident_id"],
+            {
+                "first_seen": f["first_seen"],
+                "classes": set(),
+                "tlps": set(),
+                "flows": 0,
+            },
         )
-        meta[f["incident_id"]]["classes"].add(f["source_class"])
+        m["classes"].add(f["source_class"])
+        m["tlps"].add(f["tlp"])
+        m["flows"] += 1
     incidents = []
     for iid, graphs in by_incident.items():
         transitions = incident_transitions(graphs, params, taxonomy)
@@ -226,6 +236,8 @@ def load_incidents(conn, params, taxonomy, corpus_filter=None):
                     transitions,
                     meta[iid]["first_seen"],
                     tuple(sorted(c for c in meta[iid]["classes"] if c)),
+                    meta[iid]["flows"],
+                    tuple(sorted(t for t in meta[iid]["tlps"] if t)),
                 )
             )
     return sorted(incidents, key=lambda i: i.id)

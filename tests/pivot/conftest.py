@@ -45,3 +45,55 @@ def scratch_db_url(pivot_url):
     finally:
         admin.execute(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
         admin.close()
+
+
+@pytest.fixture
+def corpus_db(scratch_db_url):
+    """A scratch database with the 41-flow seed corpus ingested against a fake ATT&CK 'test'."""
+    import re
+    from pathlib import Path
+
+    from attack_pivot.db import connect, migrate
+    from attack_pivot.ingest import load
+    from attack_pivot.ingest.afb import parse_afb_file
+
+    corpus = sorted((Path(__file__).resolve().parents[2] / "corpus").glob("*.afb"))
+    ids = {
+        a.technique_id
+        for p in corpus
+        for a in parse_afb_file(p).actions
+        if a.technique_id and re.fullmatch(r"T\d{4}(\.\d{3})?", a.technique_id)
+    }
+    with connect(scratch_db_url) as conn:
+        migrate.migrate(conn)
+        conn.execute(
+            "INSERT INTO pivot.attack_version (version, released) VALUES ('test', '2026-10-13')"
+        )
+        for n, tactic in enumerate(("TA0001", "TA0002", "TA0003"), start=1):
+            conn.execute(
+                "INSERT INTO pivot.tactic (attack_id, version, name, ord) VALUES (%s, 'test', %s, %s)",
+                (tactic, tactic, n),
+            )
+        for k, tid in enumerate(sorted(ids)):
+            tactics = (
+                ["TA0001", "TA0002"]
+                if k % 5 == 0
+                else [("TA0001", "TA0002", "TA0003")[k % 3]]
+            )
+            conn.execute(
+                "INSERT INTO pivot.technique (attack_id, version, name, parent_id, tactic_ids) "
+                "VALUES (%s, 'test', %s, %s, %s)",
+                (tid, tid, tid.split(".")[0] if "." in tid else None, tactics),
+            )
+        conn.commit()
+        # a parent technique must exist for every sub-technique
+        for tid in sorted(ids):
+            if "." in tid:
+                conn.execute(
+                    "INSERT INTO pivot.technique (attack_id, version, name, tactic_ids) VALUES (%s, 'test', %s, %s) "
+                    "ON CONFLICT DO NOTHING",
+                    (tid.split(".")[0], tid.split(".")[0], ["TA0001"]),
+                )
+        conn.commit()
+        load.ingest_paths(conn, corpus, version="test")
+        yield conn

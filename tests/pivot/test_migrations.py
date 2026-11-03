@@ -29,7 +29,7 @@ def test_init_creates_spec_schema_and_graph(scratch_db_url):
     with connect(scratch_db_url) as conn:
         migrations.init(conn)
         applied = migrations.migrate(conn)
-        assert applied == ["0001_init"]
+        assert applied == ["0001_init", "0002_estimate_precision"]
         assert SPEC_TABLES <= _tables(conn)
         graphs = [
             r["name"] for r in conn.execute("SELECT name FROM ag_catalog.ag_graph")
@@ -48,7 +48,7 @@ def test_migrate_is_idempotent(scratch_db_url):
             conn.execute("SELECT count(*) AS n FROM pivot.schema_migration").fetchone()[
                 "n"
             ]
-            == 1
+            == 2
         )
 
 
