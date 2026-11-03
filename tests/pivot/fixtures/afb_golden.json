@@ -1,0 +1,439 @@
+{
+ "Black Basta Ransomware.afb": {
+  "action_pairs": 47,
+  "actions": 38,
+  "edges": 47,
+  "labeled_pairs": 47,
+  "labels": {
+   "technique_id": 38
+  },
+  "unique_transitions": 47
+ },
+ "CISA AA22-138B VMWare Workspace (Alt).afb": {
+  "action_pairs": 10,
+  "actions": 11,
+  "edges": 10,
+  "labeled_pairs": 6,
+  "labels": {
+   "tactic_only": 2,
+   "technique_id": 9
+  },
+  "unique_transitions": 6
+ },
+ "CISA AA22-138B VMWare Workspace (TA1).afb": {
+  "action_pairs": 10,
+  "actions": 10,
+  "edges": 10,
+  "labeled_pairs": 10,
+  "labels": {
+   "technique_id": 10
+  },
+  "unique_transitions": 8
+ },
+ "CISA AA22-138B VMWare Workspace (TA2).afb": {
+  "action_pairs": 10,
+  "actions": 11,
+  "edges": 10,
+  "labeled_pairs": 10,
+  "labels": {
+   "technique_id": 11
+  },
+  "unique_transitions": 10
+ },
+ "CISA Iranian APT.afb": {
+  "action_pairs": 22,
+  "actions": 23,
+  "edges": 22,
+  "labeled_pairs": 20,
+  "labels": {
+   "tactic_only": 1,
+   "technique_id": 22
+  },
+  "unique_transitions": 20
+ },
+ "Cobalt Kitty Campaign.afb": {
+  "action_pairs": 46,
+  "actions": 27,
+  "edges": 46,
+  "labeled_pairs": 46,
+  "labels": {
+   "technique_id": 27
+  },
+  "unique_transitions": 46
+ },
+ "Conti CISA Alert.afb": {
+  "action_pairs": 34,
+  "actions": 18,
+  "edges": 34,
+  "labeled_pairs": 21,
+  "labels": {
+   "tactic_only": 5,
+   "technique_id": 13
+  },
+  "unique_transitions": 20
+ },
+ "Conti PWC.afb": {
+  "action_pairs": 6,
+  "actions": 7,
+  "edges": 6,
+  "labeled_pairs": 4,
+  "labels": {
+   "tactic_only": 2,
+   "technique_id": 5
+  },
+  "unique_transitions": 4
+ },
+ "Conti Ransomware.afb": {
+  "action_pairs": 20,
+  "actions": 19,
+  "edges": 20,
+  "labeled_pairs": 18,
+  "labels": {
+   "tactic_only": 1,
+   "technique_id": 18
+  },
+  "unique_transitions": 18
+ },
+ "DFIR - BumbleBee Round 2.afb": {
+  "action_pairs": 20,
+  "actions": 19,
+  "edges": 20,
+  "labeled_pairs": 20,
+  "labels": {
+   "technique_id": 19
+  },
+  "unique_transitions": 20
+ },
+ "Equifax Breach.afb": {
+  "action_pairs": 13,
+  "actions": 12,
+  "edges": 13,
+  "labeled_pairs": 13,
+  "labels": {
+   "ttp": 12
+  },
+  "unique_transitions": 13
+ },
+ "Example Attack Tree.afb": {
+  "action_pairs": 62,
+  "actions": 63,
+  "edges": 62,
+  "labeled_pairs": 0,
+  "labels": {
+   "none": 63
+  },
+  "unique_transitions": 0
+ },
+ "FIN13 Case 1.afb": {
+  "action_pairs": 43,
+  "actions": 40,
+  "edges": 43,
+  "labeled_pairs": 37,
+  "labels": {
+   "none": 1,
+   "tactic_only": 3,
+   "technique_id": 36
+  },
+  "unique_transitions": 37
+ },
+ "FIN13 Case 2.afb": {
+  "action_pairs": 19,
+  "actions": 19,
+  "edges": 19,
+  "labeled_pairs": 13,
+  "labels": {
+   "none": 1,
+   "tactic_only": 2,
+   "technique_id": 16
+  },
+  "unique_transitions": 13
+ },
+ "Gootloader.afb": {
+  "action_pairs": 41,
+  "actions": 36,
+  "edges": 41,
+  "labeled_pairs": 41,
+  "labels": {
+   "technique_id": 36
+  },
+  "unique_transitions": 37
+ },
+ "Hancitor DLL.afb": {
+  "action_pairs": 24,
+  "actions": 23,
+  "edges": 24,
+  "labeled_pairs": 22,
+  "labels": {
+   "tactic_only": 1,
+   "technique_id": 22
+  },
+  "unique_transitions": 22
+ },
+ "Ivanti Vulnerabilities.afb": {
+  "action_pairs": 21,
+  "actions": 23,
+  "edges": 21,
+  "labeled_pairs": 14,
+  "labels": {
+   "tactic_only": 5,
+   "technique_id": 18
+  },
+  "unique_transitions": 12
+ },
+ "JP Morgan Breach.afb": {
+  "action_pairs": 12,
+  "actions": 12,
+  "edges": 12,
+  "labeled_pairs": 9,
+  "labels": {
+   "tactic_only": 1,
+   "technique_id": 11
+  },
+  "unique_transitions": 9
+ },
+ "MITRE NERVE.afb": {
+  "action_pairs": 33,
+  "actions": 33,
+  "edges": 33,
+  "labeled_pairs": 15,
+  "labels": {
+   "tactic_only": 9,
+   "technique_id": 24
+  },
+  "unique_transitions": 15
+ },
+ "Maastricht University Ransomware.afb": {
+  "action_pairs": 21,
+  "actions": 18,
+  "edges": 21,
+  "labeled_pairs": 21,
+  "labels": {
+   "technique_id": 18
+  },
+  "unique_transitions": 20
+ },
+ "Mac Malware Steals Crypto.afb": {
+  "action_pairs": 9,
+  "actions": 9,
+  "edges": 9,
+  "labeled_pairs": 3,
+  "labels": {
+   "tactic_only": 3,
+   "technique_id": 6
+  },
+  "unique_transitions": 3
+ },
+ "Marriott Breach.afb": {
+  "action_pairs": 9,
+  "actions": 8,
+  "edges": 9,
+  "labeled_pairs": 6,
+  "labels": {
+   "tactic_only": 1,
+   "technique_id": 7
+  },
+  "unique_transitions": 6
+ },
+ "Muddy Water.afb": {
+  "action_pairs": 29,
+  "actions": 28,
+  "edges": 29,
+  "labeled_pairs": 19,
+  "labels": {
+   "none": 2,
+   "tactic_only": 4,
+   "technique_id": 22
+  },
+  "unique_transitions": 15
+ },
+ "NotPetya.afb": {
+  "action_pairs": 32,
+  "actions": 23,
+  "edges": 32,
+  "labeled_pairs": 32,
+  "labels": {
+   "technique_id": 23
+  },
+  "unique_transitions": 30
+ },
+ "OceanLotus.afb": {
+  "action_pairs": 24,
+  "actions": 23,
+  "edges": 24,
+  "labeled_pairs": 24,
+  "labels": {
+   "technique_id": 23
+  },
+  "unique_transitions": 23
+ },
+ "OpenClaw Command & Control via Prompt Injection.afb": {
+  "action_pairs": 18,
+  "actions": 18,
+  "edges": 18,
+  "labeled_pairs": 18,
+  "labels": {
+   "ttp": 18
+  },
+  "unique_transitions": 18
+ },
+ "OpenClaw.afb": {
+  "action_pairs": 18,
+  "actions": 18,
+  "edges": 18,
+  "labeled_pairs": 18,
+  "labels": {
+   "ttp": 18
+  },
+  "unique_transitions": 18
+ },
+ "REvil.afb": {
+  "action_pairs": 29,
+  "actions": 25,
+  "edges": 29,
+  "labeled_pairs": 29,
+  "labels": {
+   "technique_id": 25
+  },
+  "unique_transitions": 29
+ },
+ "Ragnar Locker.afb": {
+  "action_pairs": 23,
+  "actions": 19,
+  "edges": 23,
+  "labeled_pairs": 17,
+  "labels": {
+   "tactic_only": 3,
+   "technique_id": 16
+  },
+  "unique_transitions": 17
+ },
+ "SWIFT Heist.afb": {
+  "action_pairs": 11,
+  "actions": 11,
+  "edges": 11,
+  "labeled_pairs": 4,
+  "labels": {
+   "none": 4,
+   "tactic_only": 1,
+   "technique_id": 6
+  },
+  "unique_transitions": 4
+ },
+ "SearchAwesome Adware.afb": {
+  "action_pairs": 10,
+  "actions": 11,
+  "edges": 10,
+  "labeled_pairs": 10,
+  "labels": {
+   "technique_id": 11
+  },
+  "unique_transitions": 10
+ },
+ "Shamoon.afb": {
+  "action_pairs": 23,
+  "actions": 23,
+  "edges": 23,
+  "labeled_pairs": 23,
+  "labels": {
+   "technique_id": 23
+  },
+  "unique_transitions": 20
+ },
+ "SolarWinds.afb": {
+  "action_pairs": 53,
+  "actions": 33,
+  "edges": 53,
+  "labeled_pairs": 53,
+  "labels": {
+   "technique_id": 33
+  },
+  "unique_transitions": 52
+ },
+ "Sony Malware.afb": {
+  "action_pairs": 19,
+  "actions": 18,
+  "edges": 19,
+  "labeled_pairs": 11,
+  "labels": {
+   "none": 1,
+   "tactic_only": 3,
+   "technique_id": 14
+  },
+  "unique_transitions": 11
+ },
+ "Target Breach.afb": {
+  "action_pairs": 18,
+  "actions": 17,
+  "edges": 18,
+  "labeled_pairs": 15,
+  "labels": {
+   "tactic_only": 2,
+   "technique_id": 15
+  },
+  "unique_transitions": 15
+ },
+ "Tesla Kubernetes Breach.afb": {
+  "action_pairs": 9,
+  "actions": 9,
+  "edges": 9,
+  "labeled_pairs": 9,
+  "labels": {
+   "technique_id": 9
+  },
+  "unique_transitions": 9
+ },
+ "ToolShell Vulnerability in Sharepoint.afb": {
+  "action_pairs": 16,
+  "actions": 15,
+  "edges": 16,
+  "labeled_pairs": 13,
+  "labels": {
+   "tactic_only": 1,
+   "ttp": 14
+  },
+  "unique_transitions": 11
+ },
+ "Turla - Carbon Emulation Plan.afb": {
+  "action_pairs": 93,
+  "actions": 81,
+  "edges": 93,
+  "labeled_pairs": 89,
+  "labels": {
+   "none": 1,
+   "tactic_only": 1,
+   "ttp": 79
+  },
+  "unique_transitions": 81
+ },
+ "Turla - Snake Emulation Plan.afb": {
+  "action_pairs": 87,
+  "actions": 74,
+  "edges": 87,
+  "labeled_pairs": 87,
+  "labels": {
+   "ttp": 74
+  },
+  "unique_transitions": 83
+ },
+ "Uber Breach.afb": {
+  "action_pairs": 7,
+  "actions": 8,
+  "edges": 7,
+  "labeled_pairs": 6,
+  "labels": {
+   "tactic_only": 1,
+   "technique_id": 7
+  },
+  "unique_transitions": 6
+ },
+ "WhisperGate.afb": {
+  "action_pairs": 19,
+  "actions": 19,
+  "edges": 19,
+  "labeled_pairs": 19,
+  "labels": {
+   "technique_id": 19
+  },
+  "unique_transitions": 19
+ }
+}
