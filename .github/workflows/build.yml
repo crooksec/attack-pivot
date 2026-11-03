@@ -24,7 +24,7 @@ jobs:
       - name: Add Poetry to PATH
         run: echo "$HOME/.poetry/bin" >> $GITHUB_PATH
       - name: Install Python dependencies
-        run: poetry install --with api,docs
+        run: poetry install --with api,docs,pivot
       - name: Check code formatting
         run: poetry run black --check src/attack_flow/
       - name: Run unit tests
@@ -35,6 +35,41 @@ jobs:
           token: ${{ secrets.CODECOV_SECRET }}
           files: coverage.xml
           verbose: true
+
+  test_pivot:
+    runs-on: ubuntu-latest
+    services:
+      pivot-db:
+        # Same image as docker-compose.pivot.yml; `afp db init` creates the extension and graph.
+        image: apache/age:release_PG17_1.7.0
+        env:
+          POSTGRES_USER: pivot
+          POSTGRES_PASSWORD: pivot-ci
+          POSTGRES_DB: pivot
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U pivot -d pivot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PIVOT_DATABASE_URL: postgresql://pivot:pivot-ci@127.0.0.1:5433/pivot
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.15"
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org/ | python -
+      - name: Install Python dependencies
+        run: poetry install --with api,pivot
+      - name: Check code formatting
+        run: poetry run black --check src/attack_pivot/ tests/pivot/
+      - name: Initialise the pivot database
+        run: poetry run afp db init
+      - name: Run pivot and upstream tests
+        run: poetry run pytest tests/
 
   test_attack_flow_builder:
     runs-on: ubuntu-latest

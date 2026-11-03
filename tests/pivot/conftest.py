@@ -2,6 +2,14 @@ import os
 
 import pytest
 
+# The pivot dependency group is optional: without it (e.g. `poetry install --with api` only) the
+# pivot tests are skipped at collection instead of failing the upstream suite.
+try:
+    import psycopg  # noqa: F401
+    import scipy  # noqa: F401
+except ImportError:
+    collect_ignore_glob = ["test_*.py"]
+
 
 def pytest_configure(config):
     config.addinivalue_line(

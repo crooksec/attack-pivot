@@ -16,6 +16,8 @@ for Threat-Informed Defense](https://ctid.mitre.org/) in futherance of our missi
 start of the art and and the state of the practice in threat-informed defense globally. The project is funded
 by our [research participants](https://ctid.mitre.org/projects/attack-flow#participants-section).
 
+> **ATT&CK-pivot** (this fork): technique-transition model, knowledge graph and blue-team Explorer built on Attack Flow. See [`docs/pivot/`](docs/pivot/).
+
 **Table Of Contents:**
 
 - [Getting Started](#getting-started)
