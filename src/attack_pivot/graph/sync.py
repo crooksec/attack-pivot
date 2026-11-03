@@ -8,6 +8,7 @@ and recreates them. It never drops the graph itself (AGE's drop function cascade
 import logging
 
 from attack_pivot.graph.age import cypher
+from attack_pivot.ingest import car
 from attack_pivot.ingest.load import latest_attack_version
 
 logger = logging.getLogger(__name__)
@@ -261,14 +262,10 @@ def sync(conn, attack_version=None):
         [{"src": str(r["incident"]), "dst": r["grp"], "confidence": r["conf"]} for r in attributed],
         props=("confidence",),
     )  # fmt: skip
-    detectable = q(
-        "SELECT technique_id, analytic_id, coverage FROM pivot.analytic_technique "
-        "WHERE technique_id = ANY(%s)",
-        sorted(ids),
-    )
+    detectable, _ = car.normalized_links(conn, version)
     counts["DETECTABLE_BY"] = _create_edges(
         conn, "DETECTABLE_BY", "Technique", "attack_id", "Analytic", "id",
-        [{"src": r["technique_id"], "dst": r["analytic_id"], "coverage": r["coverage"]} for r in detectable],
+        [{"src": r["technique_id"], "dst": r["analytic_id"], "coverage": r["coverage"]} for r in detectable if r["technique_id"] in ids],
         props=("coverage",),
     )  # fmt: skip
     counts["CODED_AS"] = _create_edges(

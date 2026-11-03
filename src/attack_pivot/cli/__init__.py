@@ -50,6 +50,6 @@ def main(argv=None):
         return 1
 
 
-from attack_pivot.cli import attack, db, graph, ingest  # noqa: E402
+from attack_pivot.cli import attack, car, db, graph, ingest  # noqa: E402
 
-COMMAND_MODULES = [db, attack, ingest, graph]
+COMMAND_MODULES = [db, attack, car, ingest, graph]
