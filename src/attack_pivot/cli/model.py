@@ -42,6 +42,10 @@ def register(subparsers):
     ev.add_argument("run", help="run id, id prefix, label or 'active'")
     ev.add_argument("--seed", type=int, default=0)
     ev.add_argument("--bootstrap", type=int, default=1000)
+    ev.add_argument(
+        "--alpha-sweep",
+        help="comma list of α values to compare by cross-validation, e.g. 1,5,20,100",
+    )
     ev.set_defaults(command=_eval)
 
 
