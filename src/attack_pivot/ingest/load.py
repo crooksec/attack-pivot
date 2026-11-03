@@ -144,6 +144,7 @@ def ingest_flow(
     times = [
         t for a in parsed.actions for t in (a.execution_start, a.execution_end) if t
     ]
+    real = [t for t in times if _date(t)]
     incident_id = conn.execute(
         "INSERT INTO pivot.incident (label, first_seen, last_seen, cluster_method, "
         "cluster_confidence) VALUES (%s, %s, %s, 'singleton', 1.0) RETURNING id",
