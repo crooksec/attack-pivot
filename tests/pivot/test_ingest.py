@@ -199,3 +199,14 @@ def test_emulation_plans_get_their_own_source_class(db):
         "Turla - Snake Emulation Plan",
     ]
     assert len(by_class["independent"]) == 39
+
+
+def test_relative_1970_timestamps_are_not_dates(db):
+    load.ingest_paths(db, CORPUS)
+    rows = db.execute(
+        "SELECT label, first_seen FROM pivot.incident WHERE first_seen IS NOT NULL"
+    ).fetchall()
+    assert [r["label"] for r in rows] == [
+        "MITRE NERVE"
+    ]  # BumbleBee uses 1970-01-01 as "day zero"
+    assert str(rows[0]["first_seen"]) == "2023-12-31"

@@ -106,7 +106,13 @@ def _seconds(start, end):
 
 
 def _date(text):
-    return text[:10] if text else None
+    """
+    Calendar date of an ISO timestamp, or ``None``. Timestamps in or before 1970 are relative
+    "day zero" placeholders (e.g. DFIR - BumbleBee Round 2 uses 1970-01-01T12:05), not dates.
+    """
+    if not text or int(text[:4]) <= 1970:
+        return None
+    return text[:10]
 
 
 def ingest_flow(
@@ -141,7 +147,7 @@ def ingest_flow(
     incident_id = conn.execute(
         "INSERT INTO pivot.incident (label, first_seen, last_seen, cluster_method, "
         "cluster_confidence) VALUES (%s, %s, %s, 'singleton', 1.0) RETURNING id",
-        (parsed.name, _date(min(times, default=None)), _date(max(times, default=None))),
+        (parsed.name, _date(min(real, default=None)), _date(max(real, default=None))),
     ).fetchone()["id"]
     conn.execute(
         "INSERT INTO pivot.report_incident (report_id, incident_id, link_confidence, method) "

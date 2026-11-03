@@ -11,6 +11,8 @@ from attack_pivot.db.migrate import GRAPH_NAME as GRAPH
 from attack_pivot.graph.age import cypher
 from attack_pivot.ingest import car
 from attack_pivot.ingest.load import latest_attack_version
+from attack_pivot.model.build import resolve_run
+from attack_pivot.model.taxonomy import END, START
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ VERTEX_LABELS = [
 ]  # fmt: skip
 EDGE_LABELS = [
     "SUBTECHNIQUE_OF", "IN_TACTIC", "OBSERVED", "PART_OF", "REPORTED_IN", "PUBLISHED_BY",
-    "ATTRIBUTED_TO", "DETECTABLE_BY", "CODED_AS",
+    "ATTRIBUTED_TO", "DETECTABLE_BY", "CODED_AS", "NEXT",
 ]  # fmt: skip
 
 
@@ -86,11 +88,14 @@ def _clean(row):
     return {k: v for k, v in row.items() if v is not None}
 
 
-def sync(conn, attack_version=None):
+def sync(conn, attack_version=None, run=None):
     """
     Rebuild the graph's structural vertices and edges.
 
-    ``NEXT`` edges arrive with the model (P1). Software, Mitigation, DataComponent, D3FEND
+    ``NEXT`` edges carry one model run's estimates: ``run`` (id, id prefix or label), else the
+    active run, else none. They are labelled with ``run_id`` and ``level``; a run that stores
+    several levels yields edges at each (Technique/State for sub-technique and technique levels,
+    Tactic/State for the tactic level), so filter on ``n.level``. Software, Mitigation, DataComponent, D3FEND
     vertices and their edges are not built: the relational schema (SPEC §4) has no tables for them.
 
     :param psycopg.Connection conn:
@@ -278,5 +283,49 @@ def sync(conn, attack_version=None):
             )
         ],
     )  # fmt: skip
+    counts["NEXT"] = _create_next_edges(conn, run)
     conn.commit()
     return counts
+
+
+NEXT_PROPS = ("run_id", "level", "p", "ci_low", "ci_high", "n_ab", "n_a")
+
+
+def _create_next_edges(conn, run):
+    run_id = None
+    if run:
+        run_id = resolve_run(conn, run)
+    else:
+        active = conn.execute(
+            "SELECT id FROM pivot.model_run WHERE is_active"
+        ).fetchone()
+        run_id = active and active["id"]
+    if not run_id:
+        return 0
+    rows = conn.execute(
+        "SELECT level, src, dst, n_ab, n_a, p, ci_low, ci_high FROM pivot.transition_estimate WHERE run_id = %s",
+        (run_id,),
+    ).fetchall()
+    groups = {}
+    for r in rows:
+        node = "Tactic" if r["level"] == "tactic" else "Technique"
+        src = ("State", "name") if r["src"] == START else (node, "attack_id")
+        dst = ("State", "name") if r["dst"] == END else (node, "attack_id")
+        groups.setdefault((src, dst), []).append(
+            {"src": r["src"], "dst": r["dst"], "run_id": str(run_id)}
+            | {k: r[k] for k in NEXT_PROPS if k not in ("run_id",)}
+        )
+    total = 0
+    for ((src_label, src_key), (dst_label, dst_key)), batch in groups.items():
+        for i in range(0, len(batch), 2000):
+            total += _create_edges(
+                conn,
+                "NEXT",
+                src_label,
+                src_key,
+                dst_label,
+                dst_key,
+                batch[i : i + 2000],
+                NEXT_PROPS,
+            )
+    return total

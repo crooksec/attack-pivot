@@ -11,10 +11,14 @@ def register(subparsers):
     sync.add_argument(
         "--attack-version", help="ATT&CK version (default: latest synced)"
     )
+    sync.add_argument(
+        "--run",
+        help="model run (id, prefix or label) for NEXT edges; default: the active run",
+    )
     sync.set_defaults(command=_sync)
 
 
 def _sync(args):
     with connect(args.database_url) as conn:
-        counts = graph_sync.sync(conn, args.attack_version)
+        counts = graph_sync.sync(conn, args.attack_version, args.run)
     print("graph synced: " + ", ".join(f"{n} {k}" for k, n in counts.items() if n))
