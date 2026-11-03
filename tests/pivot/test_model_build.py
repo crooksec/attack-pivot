@@ -126,3 +126,26 @@ def test_cli_build_list_activate(corpus_db, capsys):
     assert main(["--database-url", dsn, "model", "list"]) == 0
     assert "cli" in capsys.readouterr().out
     assert main(["--database-url", dsn, "model", "activate", "cli"]) == 0
+
+
+def test_cli_eval_with_alpha_sweep(corpus_db, capsys, tmp_path, monkeypatch):
+    import psycopg.conninfo as ci
+
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    run_id, _ = build.build_run(corpus_db, label="cli-eval")
+    dsn = ci.make_conninfo(corpus_db.info.dsn, password=corpus_db.info.password)
+    argv = [
+        "--database-url",
+        dsn,
+        "model",
+        "eval",
+        "cli-eval",
+        "--bootstrap",
+        "20",
+        "--alpha-sweep",
+        "1,20",
+    ]
+    assert main(argv) == 0
+    report = tmp_path / "pivot" / "eval" / str(run_id) / "report.md"
+    assert str(report) in capsys.readouterr().out
+    assert "α sweep" in report.read_text()

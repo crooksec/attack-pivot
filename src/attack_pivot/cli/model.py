@@ -107,7 +107,8 @@ def _eval(args):
 
     with connect(args.database_url) as conn:
         run_id = build.resolve_run(conn, args.run)
+        sweep = [float(a) for a in _csv(args.alpha_sweep) or []]
         path = evaluate.evaluate_run(
-            conn, run_id, seed=args.seed, n_bootstrap=args.bootstrap
+            conn, run_id, seed=args.seed, n_bootstrap=args.bootstrap, alpha_sweep=sweep
         )
     print(f"evaluation report: {path}")
