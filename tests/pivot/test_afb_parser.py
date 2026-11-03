@@ -12,7 +12,8 @@ GOLDEN = json.loads(
 )
 
 # The 7 flows that the naive resolver reported as 0 edges (SPEC §5.1.6). Their lines resolve;
-# six carry the technique only in ``ttp``; "Example Attack Tree" has no technique labels at all.
+# six carry their technique only in ``ttp`` (the two OpenClaw flows use MITRE ATLAS IDs, not
+# ATT&CK Enterprise); "Example Attack Tree" has no technique labels at all.
 ZERO_EDGE_FLOWS = {
     "Example Attack Tree": "none",
     "Turla - Carbon Emulation Plan": "ttp",

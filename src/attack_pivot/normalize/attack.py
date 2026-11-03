@@ -272,7 +272,7 @@ def normalize_technique(technique_id, index):
     while current not in index.valid:
         nxt = index.replaced_by.get(current)
         if nxt is None or nxt in chain:  # no replacement, or a cycle
-            logger.warning("technique %s is unmappable (chain %s)", technique_id, chain)
+            logger.debug("technique %s is unmappable (chain %s)", technique_id, chain)
             return None, chain
         chain.append(nxt)
         current = nxt
