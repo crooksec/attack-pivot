@@ -59,7 +59,19 @@ from attack_pivot.cli import (
     ingest,
     model,
     sources,
+    triage,
     vcdb,
 )  # noqa: E402
 
-COMMAND_MODULES = [db, attack, sources, collect, car, vcdb, ingest, model, graph]
+COMMAND_MODULES = [
+    db,
+    attack,
+    sources,
+    collect,
+    triage,
+    car,
+    vcdb,
+    ingest,
+    model,
+    graph,
+]
