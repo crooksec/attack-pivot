@@ -50,4 +50,6 @@ def main(argv=None):
         return 1
 
 
-COMMAND_MODULES = []
+from attack_pivot.cli import db  # noqa: E402
+
+COMMAND_MODULES = [db]
