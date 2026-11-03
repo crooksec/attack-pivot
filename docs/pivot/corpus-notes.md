@@ -80,3 +80,48 @@ Jaccard. Decision: **all 41 flows stay separate incidents** (acceptance: 1 incid
 
 Counting rule consequence: if Alt–TA1 or the OpenClaw pair were merged, transitions would be the
 union per incident (§5.5), lowering the incident count by 1 each.
+
+## P0.9 — VCDB and the VERIS→ATT&CK mapping
+
+Live run (`afp vcdb sync`) on `vz-risk/VCDB` `data/json/validated` (cloned 2026-11-03) and
+`attack_to_veris` (VERIS 1.3.7 mapping v2.0, written against **ATT&CK 12.1**). Machine-readable copy:
+`DATA_DIR/pivot/vcdb-report.json`.
+
+| Measure | Value |
+|---|---|
+| Records (files) / distinct `incident_id` | 10,047 / 10,003 (44 files reuse an id; 23 ids; keyed `id~file-stem`, all 10,047 kept) |
+| VERIS schema versions | 1.4.0: 9,907 · 1.4.1: 111 · 1.3.7: 26 · 1.3.5: 2 · 1.3.6: 1 |
+| Have any `plus.event_chain` | 2,280 (**22.7 %**) |
+| Have an ordered chain with ≥ 2 steps (the minimum for a transition) | **1,247 (12.4 %)**; chain lengths 1:1,033 · 2:273 · 3:164 · 4:804 · 5:5 · 6:1 |
+| Mapping size | 1,092 rows: 138 VERIS paths → 527 techniques (all 527 map into ATT&CK 20.0 through revoked-by chains) |
+| Records with ≥ 1 mapped VERIS path (action, attribute, value-chain) | 57.9 % (39.3 % through an `action.*` path) |
+| Distinct VERIS values in VCDB that the mapping covers | 30.3 % (31.7 % of occurrences) |
+| Sequence records whose *every* step's action category has a mapped path | 268 = 21.5 % of sequence records = **2.7 % of VCDB** |
+| Records marked "Encoded by AI" in `plus.analyst_notes` | 10, all of them sequence records |
+
+**What a VCDB chain step is.** Each `event_chain` step names only a VERIS *action category*
+(`hak`, `mal`, `soc`, …) plus actor/asset/attribute and a short summary. It does not say which
+variety or vector occurred at that step. The dominant transitions are category pairs:
+malware→malware 1,020, hacking→malware 813, malware→social 740. Mapping a step to ATT&CK means pooling
+every mapped variety/vector the record lists under that category, so one step becomes many
+candidate techniques (the 1/k weighting in SPEC §6.6) and there is no way to say which one came first.
+
+### Decision note: VCDB's transition contribution
+
+1. **Technique level: none.** `mapped_coarse` is excluded from the technique model by design, and
+   the ambiguity above would make any technique pair a guess.
+2. **Tactic level: small and soft.** Realistically ≤ 268 incidents (2.7 % of VCDB) can give a
+   tactic-to-tactic transition without inventing data, and at most a few hundred more if records with
+   one unmapped step are accepted. Against the M-Proof target of 5,000 ordered transitions this is a
+   cross-check, not a source of volume.
+3. **Where VCDB is worth it now:** base rates (industry, size, actor type, year, 22.7 % chain
+   coverage), context for the bias diagnostic (VCDB-vs-rest divergence) and the action-category
+   transition table above, which needs no ATT&CK mapping at all.
+4. **Not built in P0.9:** flows/`transition_obs` rows from VCDB. Two things block it and need a
+   decision first: `transition_obs`/`action_obs` have no weight column for the 1/k candidates, and the
+   tactic-level derivation rule (which tactic does a malware→social pair mean?) is unspecified.
+   `veris_incident.flow_id` stays NULL, so there are no `CODED_AS` edges yet.
+5. **Caveats.** The mapping targets VERIS 1.3.7 / ATT&CK 12.1 while 98.6 % of VCDB is 1.4.x, so
+   values added in 1.4 cannot map. `overridden/` records are not loaded (SPEC names `validated/`
+   only). 10 records are AI-encoded, all sequence records, so any sequence statistic should be
+   reported with and without them. Licence is CC BY-SA 4.0.
