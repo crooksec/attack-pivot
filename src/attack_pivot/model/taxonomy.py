@@ -64,3 +64,20 @@ class Taxonomy:
         if level == "tactic" and not technique_id and tactic_id in self.tactic_order:
             return [(tactic_id, 1.0)]
         return []
+
+    def technique_parent(self, technique_id):
+        """The technique-level state of an ID (a sub-technique's parent, else itself)."""
+        return self.parent.get(technique_id) or technique_id
+
+    def vocabulary(self, level):
+        """
+        The ordered destination states at ``level`` (without ``END``): every valid
+        sub-technique/technique ID, every base technique, or every tactic.
+
+        :rtype: list[str]
+        """
+        if level == "subtechnique":
+            return sorted(self.parent)
+        if level == "technique":
+            return sorted(t for t, p in self.parent.items() if p is None)
+        return sorted(self.tactic_order, key=lambda t: (self.tactic_order[t], t))
