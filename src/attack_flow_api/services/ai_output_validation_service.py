@@ -10,6 +10,7 @@ from attack_flow_api.services.afb_extraction_contracts import (
     ExtractionValidationState,
     OrchestrationMode,
     SourceClassification,
+    normalize_link_meta,
 )
 from attack_flow_api.services.ai_orchestration_planner import ProviderOrchestrationInput
 from attack_flow_api.services.ai_provider_invocation_service import ProviderInvocationResult
@@ -157,6 +158,8 @@ def _normalize_evidence_citations(merged: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(item, dict):
                 continue
             out = dict(item)
+            if key == "attack_actions" and "link_meta" in out:
+                out["link_meta"] = normalize_link_meta(out["link_meta"], _as_str_list(out.get("effect_refs")))
             evidence = out.get("evidence")
             if isinstance(evidence, list):
                 normalized_evidence: list[object] = []

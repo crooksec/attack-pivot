@@ -1440,6 +1440,11 @@ def _build_relations_from_canonical_flow(
                     if edge.edge_type == "relationship"
                     else None
                 ),
+                link_properties={
+                    name: value
+                    for name in ("order_basis", "evidence_quote")
+                    if (value := getattr(edge, name, None))
+                },
                 source_support_item=source_support_item,
                 target_support_item=target_support_item,
             )
@@ -1709,6 +1714,7 @@ def _make_relation(
     source_anchor: str,
     target_anchor: str,
     relationship_type: str | None = None,
+    link_properties: dict[str, str] | None = None,
     source_support_item: dict[str, Any] | None = None,
     target_support_item: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -1723,6 +1729,7 @@ def _make_relation(
         "source_anchor_instance": _anchor_instance_for(source_instance, source_anchor),
         "target_anchor_instance": _anchor_instance_for(target_instance, target_anchor),
         "relationship_type": relationship_type,
+        "link_properties": link_properties or {},
         "instance": line_instance,
         "source_support_item": source_support_item,
         "target_support_item": target_support_item,
@@ -1741,8 +1748,16 @@ def _build_diagram_line_export(rel: dict[str, Any]) -> tuple[dict[str, Any], dic
         "handles": [handle_instance],
     }
     relationship_type = _coerce_non_empty_string(rel.get("relationship_type"))
+    properties: list[list[Any]] = []
     if relationship_type is not None:
-        line_export["properties"] = [["relationship_type", relationship_type]]
+        properties.append(["relationship_type", relationship_type])
+    # ATT&CK-pivot: how the source orders this link, carried as x_ properties (SPEC §5.3).
+    for name in ("order_basis", "evidence_quote"):
+        value = _coerce_non_empty_string((rel.get("link_properties") or {}).get(name))
+        if value is not None:
+            properties.append([f"x_{name}", value])
+    if properties:
+        line_export["properties"] = properties
     return (
         line_export,
         {"id": "generic_latch", "instance": source_latch_instance},

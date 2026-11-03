@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -115,6 +116,40 @@ class AttackAssetNode(BaseModel):
     fact_origin: FactOrigin = FactOrigin.AI_GENERATED
 
 
+ORDER_BASES = ("explicit", "timestamp", "inferred_narrative", "unordered")
+EVIDENCE_QUOTE_MAX_CHARS = 200
+
+
+class LinkMeta(BaseModel):
+    """Why one action links to the next: how the source orders them, and a short supporting quote."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    order_basis: Literal["explicit", "timestamp", "inferred_narrative", "unordered"] | None = None
+    evidence_quote: str | None = Field(default=None, max_length=EVIDENCE_QUOTE_MAX_CHARS)
+
+
+def normalize_link_meta(raw: object, effect_refs: list[str]) -> dict[str, dict[str, str]]:
+    """Keep well-formed link labels for the action's own effect_refs; clamp quotes, drop unknown bases."""
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, dict[str, str]] = {}
+    for ref in effect_refs:
+        item = raw.get(ref)
+        if not isinstance(item, dict):
+            continue
+        entry: dict[str, str] = {}
+        basis = item.get("order_basis")
+        if isinstance(basis, str) and basis in ORDER_BASES:
+            entry["order_basis"] = basis
+        quote = item.get("evidence_quote")
+        if isinstance(quote, str) and quote.strip():
+            entry["evidence_quote"] = " ".join(quote.split())[:EVIDENCE_QUOTE_MAX_CHARS]
+        if entry:
+            out[ref] = entry
+    return out
+
+
 class AttackActionNode(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -129,6 +164,7 @@ class AttackActionNode(BaseModel):
     asset_refs: list[str] = Field(default_factory=list)
     object_refs: list[str] = Field(default_factory=list)
     effect_refs: list[str] = Field(default_factory=list)
+    link_meta: dict[str, LinkMeta] = Field(default_factory=dict)
     evidence: list[EvidenceCitation] = Field(default_factory=list)
     citations: list[str] = Field(default_factory=list)
     fact_origin: FactOrigin = FactOrigin.AI_GENERATED

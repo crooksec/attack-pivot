@@ -37,7 +37,9 @@ def test_full_extraction_prompt_contains_required_rules() -> None:
     assert "Do not merge source-distinct steps when they have different techniques" in bundle.system_instruction
     assert "Treat tool setup as part of its runtime action unless the setup itself maps to a distinct ATT&CK technique" in bundle.system_instruction
     assert "For every non-terminal action, use effect_refs" in bundle.system_instruction
-    assert "do not leave otherwise sequential source-grounded actions disconnected" in bundle.system_instruction
+    assert "Link actions only where the source states or clearly implies sequence" in bundle.system_instruction
+    assert "keyed by the exact id of the link target in effect_refs, with order_basis and evidence_quote" in bundle.system_instruction
+    assert "If techniques are listed without sequence (for example a technique table), do not link them" in bundle.system_instruction
     assert "never guess branching" in bundle.system_instruction
     assert "Every evidence record for an action, condition, operator, or asset must include a nonempty source and an excerpt" in bundle.system_instruction
     assert "the evidence must contain the verbatim excerpt used for its description" in bundle.system_instruction

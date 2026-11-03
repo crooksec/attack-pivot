@@ -116,7 +116,19 @@ def _date(text):
 
 
 def ingest_flow(
-    conn, parsed, raw, kind, *, path_name, sha256, version, index, source_id, tlp
+    conn,
+    parsed,
+    raw,
+    kind,
+    *,
+    path_name,
+    sha256,
+    version,
+    index,
+    source_id,
+    tlp,
+    report_id=None,
+    llm=None,
 ):
     """
     Write one parsed flow: report, incident, flow, actions, transitions, actors, context.
@@ -124,31 +136,47 @@ def ingest_flow(
     :param ParsedFlow parsed:
     :param dict raw: The source document, stored in ``flow.afb`` or ``flow.stix``.
     :param str kind: ``"afb"`` or ``"stix"``.
+    :param report_id: An existing report (a collected one) this flow was extracted from. When
+        omitted, a report row is created for the file (seed-corpus and manual imports).
+    :param dict llm: For a flow extracted by the API: ``provider``, ``model``, ``job_id``. Edges
+        without an ``x_order_basis`` label then get ``inferred_llm`` (SPEC §5.3).
     :return: Summary counts for this flow.
     :rtype: dict
     """
-    upstream = kind == "afb"
-    origin = "upstream_corpus" if upstream else "stix_import"
-    report_id = conn.execute(
-        "INSERT INTO pivot.report (source_id, url, title, retrieved_at, sha256, tlp, "
-        "triage_status) VALUES (%s, %s, %s, now(), %s, %s, 'extracted') RETURNING id",
-        (
-            source_id,
-            UPSTREAM_URL.format(name=path_name) if upstream else None,
-            parsed.name,
-            sha256,
-            tlp,
-        ),
-    ).fetchone()["id"]
+    upstream = kind == "afb" and llm is None
+    origin = "llm" if llm else "upstream_corpus" if upstream else "stix_import"
+    if report_id is None:
+        report_id = conn.execute(
+            "INSERT INTO pivot.report (source_id, url, title, retrieved_at, sha256, tlp, "
+            "triage_status) VALUES (%s, %s, %s, now(), %s, %s, 'extracted') RETURNING id",
+            (
+                source_id,
+                UPSTREAM_URL.format(name=path_name) if upstream else None,
+                parsed.name,
+                sha256,
+                tlp,
+            ),
+        ).fetchone()["id"]
+        published = None
+    else:
+        published = conn.execute(
+            "UPDATE pivot.report SET triage_status = 'extracted' WHERE id = %s "
+            "RETURNING published_at",
+            (report_id,),
+        ).fetchone()["published_at"]
 
     times = [
         t for a in parsed.actions for t in (a.execution_start, a.execution_end) if t
     ]
     real = [t for t in times if _date(t)]
+    # Dates come from the flow's own timestamps; an extracted flow without any falls back to its
+    # report's publication date (an upper bound on when the intrusion happened).
+    first = _date(min(real, default=None)) or published
+    last = _date(max(real, default=None)) or published
     incident_id = conn.execute(
         "INSERT INTO pivot.incident (label, first_seen, last_seen, cluster_method, "
         "cluster_confidence) VALUES (%s, %s, %s, 'singleton', 1.0) RETURNING id",
-        (parsed.name, _date(min(real, default=None)), _date(max(real, default=None))),
+        (parsed.name, first, last),
     ).fetchone()["id"]
     conn.execute(
         "INSERT INTO pivot.report_incident (report_id, incident_id, link_confidence, method) "
@@ -156,16 +184,20 @@ def ingest_flow(
         (report_id, incident_id),
     )
     flow_id = conn.execute(
-        "INSERT INTO pivot.flow (report_id, incident_id, name, origin, attack_version, afb, stix, "
-        "review_status, tlp) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+        "INSERT INTO pivot.flow (report_id, incident_id, name, origin, llm_provider, llm_model, "
+        "api_job_id, attack_version, afb, stix, review_status, tlp) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
         (
             report_id,
             incident_id,
             parsed.name,
             origin,
+            (llm or {}).get("provider"),
+            (llm or {}).get("model"),
+            (llm or {}).get("job_id"),
             version,
-            Jsonb(raw) if upstream else None,
-            None if upstream else Jsonb(raw),
+            Jsonb(raw) if kind == "afb" else None,
+            None if kind == "afb" else Jsonb(raw),
             "accepted" if upstream else "unreviewed",
             tlp,
         ),
@@ -201,13 +233,17 @@ def ingest_flow(
         techniques[a.node_ref] = normalized
     counts["actions"] = len(parsed.actions)
 
-    order_basis = "unordered" if parsed.name in UNORDERED_FLOWS else "explicit"
+    default_basis = (
+        "unordered"
+        if parsed.name in UNORDERED_FLOWS
+        else "inferred_llm" if llm else "explicit"
+    )
     by_ref = {a.node_ref: a for a in parsed.actions}
     for e in parsed.edges:
         conn.execute(
             "INSERT INTO pivot.transition_obs (flow_id, incident_id, src_action, dst_action, "
-            "src_technique, dst_technique, order_basis, via, delta_seconds) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            "src_technique, dst_technique, order_basis, via, delta_seconds, evidence_quote) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
                 flow_id,
                 incident_id,
@@ -215,9 +251,14 @@ def ingest_flow(
                 action_ids[e.dst],
                 techniques[e.src],
                 techniques[e.dst],
-                order_basis,
+                (
+                    default_basis
+                    if default_basis == "unordered"
+                    else e.order_basis or default_basis
+                ),
                 e.via,
                 _seconds(by_ref[e.src].execution_start, by_ref[e.dst].execution_end),
+                e.evidence_quote,
             ),
         )
     counts["transitions"] = len(parsed.edges)

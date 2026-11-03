@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from attack_flow_api.services.afb_extraction_contracts import normalize_link_meta
+
 from attack_flow_api.services.afb_fusion_contracts import (
     FusionConflictCategory,
     FusionConflictRecord,
@@ -68,6 +70,7 @@ class MergedAttackAction(BaseModel):
     asset_refs: list[str] = Field(default_factory=list)
     object_refs: list[str] = Field(default_factory=list)
     effect_refs: list[str] = Field(default_factory=list)
+    link_meta: dict[str, dict[str, str]] = Field(default_factory=dict)
     evidence: list[dict[str, Any]] = Field(default_factory=list)
     citations: list[str] = Field(default_factory=list)
     deterministic_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -785,6 +788,7 @@ def _build_action(
         asset_refs=_as_str_list(item.get("asset_refs")),
         object_refs=_as_str_list(item.get("object_refs")),
         effect_refs=_as_str_list(item.get("effect_refs")),
+        link_meta=normalize_link_meta(item.get("link_meta"), _as_str_list(item.get("effect_refs"))),
         evidence=evidence,
         citations=_as_str_list(item.get("citations")),
         deterministic_confidence=deterministic_confidence,
@@ -1206,6 +1210,7 @@ def _merge_action(
             "asset_refs": merged_asset_refs,
             "object_refs": merged_object_refs,
             "effect_refs": merged_effect_refs,
+            "link_meta": {**normalize_link_meta(item.get("link_meta"), merged_effect_refs), **current.link_meta},
             "citations": merged_citations,
             "evidence": merged_evidence,
             "provenance": provenance,

@@ -806,7 +806,7 @@ def _build_edges_from_fused_output(
         for ref in action.asset_refs:
             edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(action.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.ASSET))
         for ref in action.effect_refs:
-            edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(action.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.EFFECT))
+            edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(action.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.EFFECT, **_link_properties(action, ref)))
     for condition in conditions:
         for ref in condition.on_true_refs:
             edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(condition.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.TRUE_BRANCH))
@@ -843,7 +843,7 @@ def _build_edges_from_afb_output(
         for ref in action.asset_refs:
             edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(action.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.ASSET))
         for ref in action.effect_refs:
-            edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(action.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.EFFECT))
+            edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(action.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.EFFECT, **_link_properties(action, ref)))
     for condition in conditions:
         for ref in condition.on_true_refs:
             edges.append(CanonicalFlowEdge(source_ref=_normalize_canonical_ref(condition.id), target_ref=_normalize_canonical_ref(ref), edge_type=CanonicalFlowEdgeKind.TRUE_BRANCH))
@@ -963,6 +963,14 @@ def _convert_evidence_dict(item: Mapping[str, Any]) -> CanonicalFlowEvidenceReco
         source_field=_as_str(item.get("source_field")),
         confidence=_coerce_confidence(item.get("confidence"), default=None),
     )
+
+
+def _link_properties(action: Any, ref: str) -> dict[str, str]:
+    """Order basis and evidence quote the extraction attached to the action's link to ``ref``."""
+    meta = (getattr(action, "link_meta", None) or {}).get(ref)
+    if meta is not None and not isinstance(meta, dict):
+        meta = meta.model_dump()
+    return {key: value for key, value in (meta or {}).items() if value}
 
 
 def _convert_fusion_provenance(item: FusionFindingProvenance) -> CanonicalFlowProvenanceRecord:

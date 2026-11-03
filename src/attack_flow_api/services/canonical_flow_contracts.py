@@ -192,6 +192,8 @@ class CanonicalFlowEdge(BaseModel):
     target_ref: str
     edge_type: CanonicalFlowEdgeKind
     relationship_type: str | None = None
+    order_basis: str | None = None
+    evidence_quote: str | None = Field(default=None, max_length=200)
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     provenance: list[CanonicalFlowProvenanceRecord] = Field(default_factory=list)
     conflicts: list[FusionConflictRecord] = Field(default_factory=list)

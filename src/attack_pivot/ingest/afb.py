@@ -45,6 +45,8 @@ class ParsedEdge:
     src: str
     dst: str
     via: str  # direct | and | or | condition_true | condition_false
+    order_basis: str | None = None  # from the line's x_order_basis (SPEC §5.3)
+    evidence_quote: str | None = None  # from x_evidence_quote, at most 200 characters
 
 
 @dataclass
@@ -96,6 +98,25 @@ def _props(obj):
 
 def _clean(value):
     return value if value not in (None, "") else None
+
+
+ORDER_BASES = {"explicit", "timestamp", "inferred_narrative", "unordered"}
+EVIDENCE_QUOTE_MAX = 200
+
+
+def _link_meta(line):
+    """``(order_basis, evidence_quote)`` from a line's ``x_`` properties; invalid values are dropped."""
+    props = _props(line)
+    basis = props.get("x_order_basis")
+    quote = props.get("x_evidence_quote")
+    return (
+        basis if basis in ORDER_BASES else None,
+        (
+            " ".join(quote.split())[:EVIDENCE_QUOTE_MAX]
+            if isinstance(quote, str) and quote.strip()
+            else None
+        ),
+    )
 
 
 def _pair_values(value):
@@ -156,14 +177,16 @@ def parse_afb(data, name=None):
         anchor = latch_anchor.get(latch)
         return anchor_owner.get(anchor), anchor_key.get(anchor)
 
-    outgoing = defaultdict(list)  # owner -> [(target owner, source anchor key)]
+    outgoing = defaultdict(
+        list
+    )  # owner -> [(target owner, source anchor key, link meta)]
     for obj in objs.values():
         if obj["id"] != "dynamic_line":
             continue
         src, key = endpoint(obj.get("source"))
         dst, _ = endpoint(obj.get("target"))
         if src and dst:
-            outgoing[src].append((dst, key))
+            outgoing[src].append((dst, key, _link_meta(obj)))
         else:
             logger.warning("unresolved dynamic_line %s", obj["instance"])
 
@@ -174,32 +197,33 @@ def parse_afb(data, name=None):
 
     seen_edges = set()
     for action in parsed.actions:
-        stack = [(t, None, k) for t, k in outgoing[action.node_ref]]
+        # the label on an induced edge is the one on the action's own outgoing line
+        stack = [(t, None, k, meta) for t, k, meta in outgoing[action.node_ref]]
         visited = set()
         while stack:
-            node, via, key = stack.pop()
+            node, via, key, meta = stack.pop()
             kind = objs[node]["id"]
             if kind == ACTION:
                 edge = (action.node_ref, node, via or "direct")
                 if edge not in seen_edges:
                     seen_edges.add(edge)
-                    parsed.edges.append(ParsedEdge(*edge))
+                    parsed.edges.append(ParsedEdge(*edge, *meta))
             elif kind in PASS_THROUGH:
                 if via is None and kind == "condition":
                     # via depends on which branch each outgoing line leaves from
-                    for target, k in outgoing[node]:
+                    for target, k, _ in outgoing[node]:
                         v = (
                             "condition_false"
                             if k == "branch:False"
                             else "condition_true"
                         )
-                        stack.append((target, v, k))
+                        stack.append((target, v, k, meta))
                     continue
                 v = via or PASS_THROUGH[kind]
                 if (node, v) in visited:
                     continue
                 visited.add((node, v))
-                stack.extend((t, v, k) for t, k in outgoing[node])
+                stack.extend((t, v, k, meta) for t, k, _ in outgoing[node])
     parsed.edges.sort(key=lambda e: (e.src, e.dst, e.via))
 
     _extract_context(parsed, objs.values())
