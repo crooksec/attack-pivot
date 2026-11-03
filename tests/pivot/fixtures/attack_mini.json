@@ -1,0 +1,268 @@
+{
+ "type": "bundle",
+ "id": "bundle--1",
+ "objects": [
+  {
+   "type": "x-mitre-collection",
+   "id": "x-mitre-collection--1",
+   "modified": "2026-10-13T19:00:00.000Z",
+   "x_mitre_version": "20.0"
+  },
+  {
+   "type": "x-mitre-tactic",
+   "id": "x-mitre-tactic--0001",
+   "name": "Execution",
+   "x_mitre_shortname": "execution",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "TA0002"
+    }
+   ]
+  },
+  {
+   "type": "x-mitre-tactic",
+   "id": "x-mitre-tactic--0002",
+   "name": "Initial Access",
+   "x_mitre_shortname": "initial-access",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "TA0001"
+    }
+   ]
+  },
+  {
+   "type": "x-mitre-matrix",
+   "id": "x-mitre-matrix--1",
+   "tactic_refs": [
+    "x-mitre-tactic--0002",
+    "x-mitre-tactic--0001"
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1059",
+   "name": "Command and Scripting Interpreter",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1059"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0001-1059",
+   "name": "PowerShell",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1059.001"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1566",
+   "name": "Phishing",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1566"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "initial-access"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1086",
+   "name": "PowerShell (old)",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1086"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "revoked": true
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1000",
+   "name": "Ancient",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1000"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "revoked": true
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1099",
+   "name": "Dropped",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1099"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "x_mitre_deprecated": true
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1064",
+   "name": "Loop A",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1064"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "revoked": true
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--0000-1065",
+   "name": "Loop B",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1065"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_platforms": [
+    "Windows"
+   ],
+   "revoked": true
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--10001086",
+   "relationship_type": "revoked-by",
+   "source_ref": "attack-pattern--0000-1000",
+   "target_ref": "attack-pattern--0000-1086"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--10861059",
+   "relationship_type": "revoked-by",
+   "source_ref": "attack-pattern--0000-1086",
+   "target_ref": "attack-pattern--0001-1059"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--10641065",
+   "relationship_type": "revoked-by",
+   "source_ref": "attack-pattern--0000-1064",
+   "target_ref": "attack-pattern--0000-1065"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--10651064",
+   "relationship_type": "revoked-by",
+   "source_ref": "attack-pattern--0000-1065",
+   "target_ref": "attack-pattern--0000-1064"
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--1",
+   "name": "APT29",
+   "aliases": [
+    "APT29",
+    "Cozy Bear",
+    "The Dukes"
+   ],
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0016"
+    }
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--2",
+   "name": "Old Group",
+   "revoked": true,
+   "aliases": [
+    "Old Group"
+   ],
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G9999"
+    }
+   ]
+  }
+ ]
+}
