@@ -18,7 +18,7 @@ describe("DirectProviderSystemInstructionBuilder", () => {
         expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("corresponding ATT&CK tactic");
         expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("For every non-terminal action, use effect_refs");
         expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("Merge contiguous substeps");
-        expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("do not leave otherwise sequential source-grounded actions disconnected");
+        expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("keyed by the exact id of the link target in effect_refs, with order_basis and evidence_quote");
         expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("never guess branching");
         expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("state or prerequisite that gates a later action");
         expect(DIRECT_PROVIDER_SYSTEM_INSTRUCTION_TEXT).toContain("upon execution, after, before, when, once, with those credentials");
