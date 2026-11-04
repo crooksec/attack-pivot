@@ -10,6 +10,16 @@ import time
 from pathlib import Path
 
 DEFAULT_CONFIG = Path("config/providers.yml")
+THINK_BLOCK = re.compile(r"<think>.*?(?:</think>|$)", re.S | re.I)
+
+
+def _env_number(name, default, cast):
+    """A positive number from the environment (slow local models need larger limits), else ``default``."""
+    try:
+        value = cast(os.environ[name])
+    except (KeyError, ValueError):
+        return default
+    return value if value > 0 else default
 
 
 class LlmUnavailable(RuntimeError):
@@ -23,13 +33,20 @@ class LlmClient:
         self.provider_type = provider_type
         self.model = model
 
-    def complete_json(self, prompt, max_output_tokens=400, timeout=60.0):
+    def complete_json(self, prompt, max_output_tokens=None, timeout=None):
         """
+        ``PIVOT_LLM_TIMEOUT`` (seconds, default 60) and ``PIVOT_LLM_MAX_OUTPUT_TOKENS`` (default 400)
+        raise the defaults for slow local models and models that write reasoning before the answer.
+
         :return: ``(parsed_object | None, usage)`` where usage is
             ``{"input_tokens", "output_tokens", "latency_ms"}``.
         """
         from attack_flow_api.providers.contracts import StructuredGenerationRequest
 
+        max_output_tokens = max_output_tokens or _env_number(
+            "PIVOT_LLM_MAX_OUTPUT_TOKENS", 400, int
+        )
+        timeout = timeout or _env_number("PIVOT_LLM_TIMEOUT", 60.0, float)
         started = time.monotonic()
         result = self.adapter.generate_structured(
             StructuredGenerationRequest(
@@ -51,12 +68,18 @@ class LlmClient:
 
 
 def parse_json_object(text):
-    """The first JSON object in a model reply (tolerates code fences and prose), else ``None``."""
+    """
+    The first JSON object in a model reply, else ``None``. Tolerates code fences, prose around the
+    object and ``<think>`` reasoning blocks (an unclosed one, from a reply cut off at the token
+    limit, hides everything after it).
+    """
     if not text:
         return None
-    for candidate in (text, *re.findall(r"\{.*\}", text, re.S)):
+    text = THINK_BLOCK.sub("", text)
+    decoder = json.JSONDecoder()
+    for start in (m.start() for m in re.finditer(r"\{", text)):
         try:
-            value = json.loads(candidate)
+            value, _ = decoder.raw_decode(text, start)
         except ValueError:
             continue
         if isinstance(value, dict):

@@ -24,6 +24,11 @@ def register(subparsers):
     parser.add_argument(
         "--timeout", type=float, default=900.0, help="Seconds to wait for one job"
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be submitted; contact neither the API nor a model",
+    )
     parser.set_defaults(command=_extract)
 
 
@@ -34,6 +39,15 @@ def _extract(args):
             raise RuntimeError(
                 "no ATT&CK version in the database; run `afp attack sync` first"
             )
+        if args.dry_run:
+            plan = run.plan(conn, args.limit)
+            print(
+                f"extract dry run: {plan['reports']} candidate reports "
+                f"({plan['chars']:,} characters, about {plan['chars'] // 4:,} tokens before the "
+                f"API's prompt and chunking), {plan['unreadable']} unreadable. "
+                "Nothing was sent."
+            )
+            return 0
         todo = len(run.pending(conn, args.limit))
         if not todo:
             print("no candidate reports; run `afp triage` first")

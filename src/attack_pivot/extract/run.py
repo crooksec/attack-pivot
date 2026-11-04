@@ -32,6 +32,24 @@ def pending(conn, limit=None):
     ).fetchall()
 
 
+def plan(conn, limit=None):
+    """
+    What :func:`extract_reports` would submit, without calling the API.
+
+    :return: ``{"reports", "unreadable", "chars"}`` (``chars`` is the report text length, which the
+        API turns into model calls at its own chunk size).
+    """
+    out = {"reports": 0, "unreadable": 0, "chars": 0}
+    for report in pending(conn, limit):
+        try:
+            out["chars"] += len(Path(report["text_path"]).read_text(encoding="utf-8"))
+        except OSError:
+            out["unreadable"] += 1
+            continue
+        out["reports"] += 1
+    return out
+
+
 def job_metadata(report):
     """What the API is told about the source: title, URL as an external reference, publisher."""
     meta = {"title": report["title"], "source_name": report["source_name"]}

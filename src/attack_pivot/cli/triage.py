@@ -29,6 +29,11 @@ def register(subparsers):
         action="store_true",
         help="Redo reports that already have a decision",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show how many LLM calls and roughly how many tokens a run would use; call no model",
+    )
     parser.add_argument("--provider", help="Provider id from the API's providers.yml")
     parser.add_argument("--model")
     parser.set_defaults(command=_triage)
@@ -58,6 +63,15 @@ def _triage(args):
                 "no ATT&CK version in the database; run `afp attack sync` first"
             )
         index = attack.load_index(conn, version)
+        if args.dry_run:
+            plan = run.plan(conn, index, limit=args.limit, retriage=args.retriage)
+            print(
+                f"triage dry run: {plan['reports']} reports, "
+                f"{plan['rejected_by_heuristics']} rejected by heuristics, "
+                f"{plan['llm_calls']} LLM calls, about {plan['prompt_chars'] // 4} input tokens "
+                f"(chars/4), {plan['unreadable']} unreadable. No model was called."
+            )
+            return 0
         try:
             client = (
                 None

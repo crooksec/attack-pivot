@@ -117,6 +117,43 @@ def test_parse_json_object_tolerates_fences():
     assert llm.parse_json_object("[1,2]") is None
 
 
+def test_parse_json_object_handles_local_model_replies():
+    reasoned = '<think>maybe {"is_intrusion_narrative": false}</think>\nAnswer: {"a": {"b": 1}}'
+    assert llm.parse_json_object(reasoned) == {"a": {"b": 1}}
+    assert llm.parse_json_object('<THINK>\n{}\n</THINK>```json\n{"a": 2}\n```') == {
+        "a": 2
+    }
+    assert llm.parse_json_object('<think>cut off at the token limit {"a": 1}') is None
+    assert llm.parse_json_object('braces { in prose } then {"a": 3} end') == {"a": 3}
+    assert llm.parse_json_object('{"a": 1} {"b": 2}') == {"a": 1}
+
+
+def test_llm_limits_come_from_the_environment(monkeypatch):
+    seen = []
+
+    class Adapter:
+        def generate_structured(self, request):
+            seen.append((request.timeout_seconds, request.max_output_tokens))
+            from attack_flow_api.providers.contracts import (
+                ProviderTokenUsage,
+                StructuredGenerationResult,
+            )
+
+            return StructuredGenerationResult(
+                provider_id="p", provider_type="openai", model="m", output_text="{}",
+                usage=ProviderTokenUsage(input_tokens=1, output_tokens=1), latency_ms=1,
+            )  # fmt: skip
+
+    client = llm.LlmClient(Adapter(), "p", "openai", "m")
+    client.complete_json("x")
+    monkeypatch.setenv("PIVOT_LLM_TIMEOUT", "600")
+    monkeypatch.setenv("PIVOT_LLM_MAX_OUTPUT_TOKENS", "2000")
+    client.complete_json("x")
+    monkeypatch.setenv("PIVOT_LLM_TIMEOUT", "bogus")
+    client.complete_json("x", max_output_tokens=50, timeout=5)
+    assert seen == [(60.0, 400), (600.0, 2000), (5, 50)]
+
+
 def test_from_config_errors(tmp_path):
     with pytest.raises(llm.LlmUnavailable, match="no provider config"):
         llm.from_config(config_path=tmp_path / "nope.yml")
@@ -240,6 +277,32 @@ def test_heuristics_only_mode_is_marked(db):
     r = row(db, cited)
     assert counts["candidate"] == 1 and r["technique_mentions"] == 3
     assert r["triage"]["mode"] == "heuristics_only" and "llm" not in r["triage"]
+
+
+@pytest.mark.pivot_db
+def test_dry_run_plans_without_calling_a_model(db, scratch_db_url, capsys, monkeypatch):
+    add(db, "T1566 T1059.001 T1003.001 " + FILLER)
+    add(db, "nothing relevant " + FILLER)
+    plan = run.plan(db, INDEX)
+    assert (
+        plan["reports"] == 2 and plan["llm_calls"] + plan["rejected_by_heuristics"] == 2
+    )
+    assert plan["prompt_chars"] >= plan["llm_calls"] * len(classify.PROMPT)
+    assert {
+        r["triage_status"] for r in db.execute("SELECT triage_status FROM pivot.report")
+    } == {"new"}
+
+    db.execute("INSERT INTO pivot.attack_version (version) VALUES ('t')")
+    db.execute(
+        "INSERT INTO pivot.technique (attack_id, version, name) VALUES ('T1566', 't', 'x')"
+    )
+    db.commit()
+    monkeypatch.setattr(
+        llm, "from_config", lambda *a, **k: pytest.fail("a client was built")
+    )
+    assert main(["--database-url", scratch_db_url, "triage", "--dry-run"]) == 0
+    out = capsys.readouterr().out
+    assert "triage dry run: 2 reports" in out and "No model was called" in out
 
 
 @pytest.mark.pivot_db

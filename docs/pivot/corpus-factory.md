@@ -30,3 +30,5 @@ afp triage cost                        # LLM calls and tokens logged so far
 ## Prerequisites outside this repository
 - `config/providers.yml` (copy `providers.yml.example`) with a provider enabled, for `afp triage`; the API running with the same file, for `afp extract` (`ATTACK_FLOW_API_URL`, default `http://localhost:8000/api/v1`).
 - `docker compose -f docker-compose.api.yml up` (or any running `attack_flow_api`) for extraction.
+
+Local models: see [local-models.md](local-models.md) (provider config, limits, dry runs, and the rule to leave shared local models alone until their owner says they are free).

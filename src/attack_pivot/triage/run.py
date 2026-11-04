@@ -47,6 +47,30 @@ def _pending(conn, limit, retriage):
     ).fetchall()
 
 
+def plan(conn, index, limit=None, retriage=False):
+    """
+    What :func:`triage_reports` would send to a model, without calling one or changing anything.
+
+    :return: Counter of ``reports``, ``unreadable``, ``rejected_by_heuristics``, ``llm_calls`` and
+        ``prompt_chars`` (the report excerpts plus the prompt template).
+    """
+    counts = Counter()
+    for row in _pending(conn, limit, retriage):
+        try:
+            text = Path(row["text_path"]).read_text(encoding="utf-8")
+        except OSError:
+            counts["unreadable"] += 1
+            continue
+        counts["reports"] += 1
+        passes, _ = heuristics.first_pass(heuristics.analyze(text, index))
+        if not passes:
+            counts["rejected_by_heuristics"] += 1
+            continue
+        counts["llm_calls"] += 1
+        counts["prompt_chars"] += len(classify.PROMPT) + len(classify.excerpt(text))
+    return counts
+
+
 def triage_reports(conn, index, client=None, limit=None, retriage=False):
     """
     Triage stored reports.

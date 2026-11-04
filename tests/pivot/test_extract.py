@@ -157,6 +157,19 @@ def add_candidate(conn, title, sequence=True, published="2026-02-03"):
 
 
 @pytest.mark.pivot_db
+def test_extract_dry_run_contacts_nothing(db, scratch_db_url, monkeypatch, capsys):
+    add_candidate(db, "one")
+    add_candidate(db, "two")
+    monkeypatch.setattr(
+        api.ApiClient, "__init__", lambda *a, **k: pytest.fail("API client built")
+    )
+    assert run.plan(db)["reports"] == 2
+    assert main(["--database-url", scratch_db_url, "extract", "--dry-run"]) == 0
+    out = capsys.readouterr().out
+    assert "extract dry run: 2 candidate reports" in out and "Nothing was sent" in out
+
+
+@pytest.mark.pivot_db
 def test_pending_prefers_sequence_language_then_newest(db):
     add_candidate(db, "plain-new", sequence=False, published="2026-03-01")
     add_candidate(db, "seq-old", published="2026-01-01")
