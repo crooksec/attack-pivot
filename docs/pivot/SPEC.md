@@ -350,6 +350,7 @@ afp export navigator --run RUN --from T1566.001 --depth 2 -o out.json
 ## 11. Upstream files touched (keep to this list)
 - `config/ai-prompts.json`: rule 4 replacement + `order_basis` / `evidence_quote` output fields (§5.3).
 - Canonical flow / `.afb` export services in `src/attack_flow_api/services/` that carry link properties: pass through `x_order_basis`, `x_evidence_quote`.
+- `src/attack_flow_builder/src/assets/configuration/AttackFlowTemplates/BaseObjects.ts`: `x_order_basis` / `x_evidence_quote` string properties on `dynamic_line`, so the Builder keeps them on open/save (added in P2.4; the Builder drops properties its template does not define).
 - `src/attack_flow_api/main.py`: conditional router mount.
 - `pyproject.toml`: `pivot` group, `afp` script, package include.
 - `deploy/nginx/*.conf`: `/explorer/` location.

@@ -16,6 +16,14 @@ export const BaseObjects: DiagramObjectTemplate[] = [
             confidence: ConfidenceProperty,
             relationship_type: {
                 type: PropertyType.String
+            },
+            // ATT&CK-pivot edge evidence. Not published to STIX; kept so the
+            // values survive opening and saving a flow in the Builder.
+            x_order_basis: {
+                type: PropertyType.String
+            },
+            x_evidence_quote: {
+                type: PropertyType.String
             }
         }
     },
