@@ -21,7 +21,7 @@ Decision values: `enable`, `manual only`, `reject`. Nothing below has been revie
 | Attack Flow upstream corpus | independent | manual | https://github.com/center-for-threat-informed-defense/attack-flow/tree/main/corpus | Apache-2.0 | ☐ | ☐ | ☐ | seed-enabled (structured source) |  |
 | ATT&CK Campaigns | independent | github_repo | https://github.com/mitre-attack/attack-stix-data | ATT&CK Terms of Use | ☐ | ☐ | ☐ | unreviewed |  |
 | CTID Adversary Emulation Library | emulation | github_repo | https://github.com/center-for-threat-informed-defense/adversary_emulation_library | Apache-2.0 | ☐ | ☐ | ☐ | unreviewed |  |
-| CISA Cybersecurity Advisories | government | rss | https://www.cisa.gov/news-events/cybersecurity-advisories | US public domain | ☐ | ☐ | ☐ | unreviewed |  |
+| CISA Cybersecurity Advisories | government | rss | https://www.cisa.gov/news-events/cybersecurity-advisories | US public domain | ☐ | ✔ 2026-11-03 | ✔ 2026-11-03 | unreviewed |  |
 | FBI / IC3 Flash & PIN | government | sitemap | https://www.ic3.gov/CSA | unknown | ☐ | ☐ | ☐ | unreviewed |  |
 | NSA Cybersecurity Advisories | government | sitemap | https://www.nsa.gov/Press-Room/Cybersecurity-Advisories-Guidance/ | unknown | ☐ | ☐ | ☐ | unreviewed |  |
 | UK NCSC | government | rss | https://www.ncsc.gov.uk/section/keep-up-to-date/reports-advisories | unknown | ☐ | ☐ | ☐ | unreviewed |  |
@@ -29,10 +29,10 @@ Decision values: `enable`, `manual only`, `reject`. Nothing below has been revie
 | Canadian Centre for Cyber Security | government | rss | https://www.cyber.gc.ca/en/alerts-advisories | unknown | ☐ | ☐ | ☐ | unreviewed |  |
 | CERT-EU Threat Intelligence | government | rss | https://cert.europa.eu/publications/threat-intelligence | unknown | ☐ | ☐ | ☐ | unreviewed |  |
 | JPCERT/CC Eyes | government | rss | https://blogs.jpcert.or.jp/en/ | unknown | ☐ | ☐ | ☐ | unreviewed |  |
-| The DFIR Report | independent | rss | https://thedfirreport.com | unknown | ☐ | ☐ | ☐ | unreviewed |  |
+| The DFIR Report | independent | rss | https://thedfirreport.com | unknown | ☐ | ✔ 2026-11-03 | ✔ 2026-11-03 | unreviewed |  |
 | Huntress Blog | vendor | rss | https://www.huntress.com/blog | unknown | ☐ | ☐ | ☐ | unreviewed |  |
-| Red Canary Blog | vendor | rss | https://redcanary.com/blog/ | unknown | ☐ | ☐ | ☐ | unreviewed |  |
-| Google Threat Intelligence / Mandiant | vendor | rss | https://cloud.google.com/blog/topics/threat-intelligence | unknown | ☐ | ☐ | ☐ | unreviewed |  |
+| Red Canary Blog | vendor | rss | https://redcanary.com/blog/ | unknown | ☐ | ✔ 2026-11-03 | ✔ 2026-11-03 | unreviewed |  |
+| Google Threat Intelligence / Mandiant | vendor | rss | https://cloud.google.com/blog/topics/threat-intelligence | unknown | ☐ | ✔ 2026-11-03 | ✔ 2026-11-03 | unreviewed |  |
 | Microsoft Threat Intelligence | vendor | rss | https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/ | unknown | ☐ | ☐ | ☐ | unreviewed |  |
 | Unit 42 (public blog) | vendor | rss | https://unit42.paloaltonetworks.com | unknown | ☐ | ☐ | ☐ | unreviewed |  |
 | CrowdStrike Blog | vendor | rss | https://www.crowdstrike.com/en-us/blog/ | unknown | ☐ | ☐ | ☐ | unreviewed |  |
@@ -66,3 +66,17 @@ Decision values: `enable`, `manual only`, `reject`. Nothing below has been revie
 - The four seed-enabled entries are the structured sources read from public repositories by `afp car sync` and `afp vcdb sync` (and the upstream Attack Flow corpus). Their licences were read from the repositories in P0: CAR Apache-2.0; VCDB CC BY-SA 4.0 (share-alike matters if a derived dataset is published, PRD Q3); `attack_to_veris` Apache-2.0 (archived).
 - ISAC entries are `manual`: files the owner already has access to, TLP set from the document. MS-ISAC/CIS advisories are public, but member content is not.
 - Fill a row, run `afp sources enable`, and commit this file with the change.
+
+## First review pass: CISA, The DFIR Report, Red Canary, Google Threat Intelligence / Mandiant (fetched 2026-11-03)
+
+What was fetched: each host's `/robots.txt`, its homepage (footer legal links), the feed, and the terms page where one was found. One request per URL, 5 s apart, with the collector's user agent. Nothing was downloaded beyond those pages, nothing was logged into, and no source was enabled. **ToS/licence is still ☐ for all four: that call, and `afp sources enable`, are the reviewer's.**
+
+| Source | robots.txt (allows blog/advisory paths) | Feed | Licence / terms found | Open points |
+|---|---|---|---|---|
+| CISA | 200. `Disallow` only admin, search, user and `/core/`-style asset paths; no `Crawl-delay`. PetalBot is blocked, not us. | `https://www.cisa.gov/cybersecurity-advisories/all.xml` returns 200 RSS, **5.8 MB** (under the 10 MB cap; grows). | The seed's "US public domain" is **not confirmed**: `/privacy-policy` has no reuse statement and `/news-events/news/website-policies` is a 404. | Find CISA's current reuse/copyright statement before recording a licence. |
+| The DFIR Report | 200 (WordPress virtual file). Only `/wp-admin/`, `/wp-includes/`, `/trackback/`, login paths disallowed; no `Crawl-delay`. | `https://thedfirreport.com/feed/` returns 200 RSS (14 KB). | Footer: "All Rights Reserved". No terms page; only `/privacy-policy/`. | Reproduction is not licensed. Local analytic use only; the redistribution rule (item 6) applies, so default to TLP `amber` (excluded from public exports) unless the reviewer decides otherwise. Consider asking the publisher. |
+| Red Canary | 200. `Disallow`: `/wp-admin/`, `/speed-testing/`, `/tag/`, `/*thank-you`, `/*.pdf$`. No `Crawl-delay`. | `https://redcanary.com/blog/feed/` returns 200 RSS (9 KB). | Footer links to `/legal/overview`, which returns 404 (the site is now Zscaler-branded). Terms **not found**. | `https://redcanary.com/blog/` now redirects to `www.zscaler.com/blogs` (a different host; the collector robots-checks each hop). The seed `base_url` is stale and the source should set `feed_url` explicitly. Terms page still to be located. |
+| Google Threat Intelligence / Mandiant (public blog) | `cloud.google.com/robots.txt` 200: no rule touches `/blog`; `cloudblog.withgoogle.com/robots.txt` only disallows `/search/`. No `Crawl-delay`. | Page advertises `https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v` (200 RSS, **1.5 MB**, latest entry 2026-11-02). The feed's own `self` link is `cloudblog.withgoogle.com/blog/topics/threat-intelligence/rss/`. | The blog footer points to Google's general Terms of Service and Privacy pages; `cloud.google.com/terms/` is the Cloud services terms, not a content licence. No content-reuse licence found. | `feeds.feedburner.com/robots.txt` returns an HTML JavaScript redirect, not a robots file (the collector reads that as "no rules": allow). Prefer the `cloudblog.withgoogle.com` feed URL if it works. Reuse terms need a human read. |
+
+**Not reviewed: the Mandiant / Google Threat Intelligence portal itself.** The product portal (formerly Mandiant Advantage; now part of Google Threat Intelligence) needs a login and a licence. The collection rules forbid auth or paywall bypass, so it is not a collectable source; only the public blog above is. If the user holds portal access and its terms allow exporting reports, those can come in later as a `manual` import with the TLP stamped on each document.
+
