@@ -1,0 +1,121 @@
+# ATT&CK-pivot source registry seed. Loaded by `afp sources load`.
+# Every source ships enabled: false unless marked reviewed. Before enabling, confirm:
+# licence/ToS, robots.txt, feed URL still valid, default TLP. URLs are starting points; verify at build time.
+# reliability: Admiralty A (completely reliable) .. F (cannot be judged)
+
+defaults:
+  enabled: false
+  default_tlp: clear
+  rate_limit_seconds: 5
+
+sources:
+  # ---------- Required structured sources ----------
+  - name: MITRE CAR
+    publisher: MITRE
+    source_class: detection_repo
+    base_url: https://github.com/mitre-attack/car
+    collector: github_repo
+    collector_config: {path: analytics, format: yaml}
+    licence: Apache-2.0
+    reliability: A
+    enabled: true
+    notes: Detection analytics -> analytic tables; not transition data (SPEC §6.6)
+
+  - name: VERIS Community Database
+    publisher: VERIS / vz-risk
+    source_class: structured_dataset
+    base_url: https://github.com/vz-risk/VCDB
+    collector: github_repo
+    collector_config: {path: data/json/validated, format: veris_json}
+    licence: verify (repo licence file)
+    reliability: B
+    enabled: true
+    notes: Map via CTID attack_to_veris; mapped_coarse fidelity (SPEC §6.6)
+
+  - name: CTID VERIS-ATT&CK mapping
+    publisher: MITRE CTID
+    source_class: structured_dataset
+    base_url: https://github.com/center-for-threat-informed-defense/attack_to_veris
+    collector: github_repo
+    licence: Apache-2.0 (verify)
+    reliability: A
+    enabled: true
+    notes: Mapping table only
+
+  # ---------- Seed flows and structured ATT&CK data ----------
+  - name: Attack Flow upstream corpus
+    publisher: MITRE CTID
+    source_class: independent
+    base_url: https://github.com/center-for-threat-informed-defense/attack-flow/tree/main/corpus
+    collector: manual
+    licence: Apache-2.0
+    reliability: A
+    enabled: true
+
+  - name: ATT&CK Campaigns
+    publisher: MITRE
+    source_class: independent
+    base_url: https://github.com/mitre-attack/attack-stix-data
+    collector: github_repo
+    collector_config: {objects: campaign, use_procedure_examples: true}
+    licence: ATT&CK Terms of Use
+    reliability: A
+    notes: Mostly unordered; procedure-example citations are a URL source for narrative reports
+
+  - name: CTID Adversary Emulation Library
+    publisher: MITRE CTID
+    source_class: emulation
+    base_url: https://github.com/center-for-threat-informed-defense/adversary_emulation_library
+    collector: github_repo
+    licence: Apache-2.0
+    reliability: A
+    notes: Ordered; keep as separate class (R1)
+
+  # ---------- Government ----------
+  - {name: CISA Cybersecurity Advisories, publisher: CISA, source_class: government, base_url: https://www.cisa.gov/news-events/cybersecurity-advisories, collector: rss, reliability: A, licence: US public domain}
+  - {name: FBI / IC3 Flash & PIN, publisher: FBI, source_class: government, base_url: https://www.ic3.gov/CSA, collector: sitemap, reliability: A}
+  - {name: NSA Cybersecurity Advisories, publisher: NSA, source_class: government, base_url: https://www.nsa.gov/Press-Room/Cybersecurity-Advisories-Guidance/, collector: sitemap, reliability: A}
+  - {name: UK NCSC, publisher: NCSC, source_class: government, base_url: https://www.ncsc.gov.uk/section/keep-up-to-date/reports-advisories, collector: rss, reliability: A}
+  - {name: ASD ACSC Advisories, publisher: ASD, source_class: government, base_url: https://www.cyber.gov.au/about-us/view-all-content/alerts-and-advisories, collector: rss, reliability: A}
+  - {name: Canadian Centre for Cyber Security, publisher: CCCS, source_class: government, base_url: https://www.cyber.gc.ca/en/alerts-advisories, collector: rss, reliability: A}
+  - {name: CERT-EU Threat Intelligence, publisher: CERT-EU, source_class: government, base_url: https://cert.europa.eu/publications/threat-intelligence, collector: rss, reliability: A}
+  - {name: JPCERT/CC Eyes, publisher: JPCERT/CC, source_class: government, base_url: https://blogs.jpcert.or.jp/en/, collector: rss, reliability: B}
+
+  # ---------- Independent / IR narrative (high sequence value) ----------
+  - {name: The DFIR Report, publisher: The DFIR Report, source_class: independent, base_url: https://thedfirreport.com, collector: rss, reliability: A, notes: Timelines -> order_basis explicit/timestamp}
+  - {name: Huntress Blog, publisher: Huntress, source_class: vendor, base_url: https://www.huntress.com/blog, collector: rss, reliability: B}
+  - {name: Red Canary Blog, publisher: Red Canary, source_class: vendor, base_url: https://redcanary.com/blog/, collector: rss, reliability: B}
+
+  # ---------- Vendor threat intel (public blogs) ----------
+  - {name: Google Threat Intelligence / Mandiant, source_class: vendor, base_url: https://cloud.google.com/blog/topics/threat-intelligence, collector: rss, reliability: B}
+  - {name: Microsoft Threat Intelligence, source_class: vendor, base_url: https://www.microsoft.com/en-us/security/blog/topic/threat-intelligence/, collector: rss, reliability: B}
+  - {name: Unit 42 (public blog), source_class: vendor, base_url: https://unit42.paloaltonetworks.com, collector: rss, reliability: B, notes: Public OSINT only}
+  - {name: CrowdStrike Blog, source_class: vendor, base_url: https://www.crowdstrike.com/en-us/blog/, collector: rss, reliability: B}
+  - {name: Cisco Talos, source_class: vendor, base_url: https://blog.talosintelligence.com, collector: rss, reliability: B}
+  - {name: Sophos X-Ops, source_class: vendor, base_url: https://news.sophos.com/en-us/category/threat-research/, collector: rss, reliability: B}
+  - {name: SentinelLABS, source_class: vendor, base_url: https://www.sentinelone.com/labs/, collector: rss, reliability: B}
+  - {name: Securelist (Kaspersky), source_class: vendor, base_url: https://securelist.com, collector: rss, reliability: B}
+  - {name: ESET WeLiveSecurity, source_class: vendor, base_url: https://www.welivesecurity.com/en/research/, collector: rss, reliability: B}
+  - {name: Check Point Research, source_class: vendor, base_url: https://research.checkpoint.com, collector: rss, reliability: B}
+  - {name: Trend Micro Research, source_class: vendor, base_url: https://www.trendmicro.com/en_us/research.html, collector: rss, reliability: B}
+  - {name: Proofpoint Threat Insight, source_class: vendor, base_url: https://www.proofpoint.com/us/blog/threat-insight, collector: rss, reliability: B}
+  - {name: Symantec / Broadcom Threat Intelligence, source_class: vendor, base_url: https://www.security.com/threat-intelligence, collector: rss, reliability: B}
+  - {name: Elastic Security Labs, source_class: vendor, base_url: https://www.elastic.co/security-labs, collector: rss, reliability: B}
+  - {name: Recorded Future Insikt, source_class: vendor, base_url: https://www.recordedfuture.com/research, collector: rss, reliability: B}
+  - {name: Volexity Threat Intelligence, source_class: vendor, base_url: https://www.volexity.com/blog/, collector: rss, reliability: B}
+  - {name: Zscaler ThreatLabz, source_class: vendor, base_url: https://www.zscaler.com/blogs/security-research, collector: rss, reliability: B}
+  - {name: Arctic Wolf Labs, source_class: vendor, base_url: https://arcticwolf.com/resources/blog/, collector: rss, reliability: B}
+  - {name: Rapid7 Research, source_class: vendor, base_url: https://www.rapid7.com/blog/, collector: rss, reliability: B}
+  - {name: Secureworks CTU, source_class: vendor, base_url: https://www.secureworks.com/research, collector: rss, reliability: B}
+
+  # ---------- Bulk report collections (URL discovery) ----------
+  - {name: APTnotes, source_class: community, base_url: https://github.com/aptnotes/data, collector: github_repo, reliability: C, notes: Index of public APT reports; fetch originals, verify licence}
+  - {name: ORKL, source_class: community, base_url: https://orkl.eu, collector: api, reliability: C, notes: Threat report library with API; verify terms}
+
+  # ---------- ISACs (manual; TLP from document; public export only if TLP:CLEAR) ----------
+  - {name: Health-ISAC, source_class: isac, collector: manual, default_tlp: amber, reliability: B}
+  - {name: FS-ISAC, source_class: isac, collector: manual, default_tlp: amber, reliability: B}
+  - {name: MS-ISAC / CIS, source_class: isac, base_url: https://www.cisecurity.org/insights/advisory, collector: rss, default_tlp: clear, reliability: B, notes: Public advisories are TLP:CLEAR; member content manual}
+  - {name: E-ISAC, source_class: isac, collector: manual, default_tlp: amber, reliability: B}
+  - {name: REN-ISAC, source_class: isac, collector: manual, default_tlp: amber, reliability: B}
+  - {name: Auto-ISAC, source_class: isac, collector: manual, default_tlp: amber, reliability: B}
