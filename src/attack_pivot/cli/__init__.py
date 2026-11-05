@@ -62,6 +62,8 @@ from attack_pivot.cli import (
     ingest,
     model,
     review,
+    search,
+    settings,
     sources,
     triage,
     vcdb,
@@ -82,4 +84,6 @@ COMMAND_MODULES = [
     ingest,
     model,
     graph,
+    settings,
+    search,
 ]

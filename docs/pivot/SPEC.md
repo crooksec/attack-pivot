@@ -351,8 +351,8 @@ afp export navigator --run RUN --from T1566.001 --depth 2 -o out.json
 - `config/ai-prompts.json`: rule 4 replacement + `order_basis` / `evidence_quote` output fields (§5.3).
 - Canonical flow / `.afb` export services in `src/attack_flow_api/services/` that carry link properties: pass through `x_order_basis`, `x_evidence_quote`.
 - `src/attack_flow_builder/src/assets/configuration/AttackFlowTemplates/BaseObjects.ts`: `x_order_basis` / `x_evidence_quote` string properties on `dynamic_line`, so the Builder keeps them on open/save (added in P2.4; the Builder drops properties its template does not define).
-- `src/attack_flow_api/main.py`: conditional router mount.
-- `pyproject.toml`: `pivot` group, `afp` script, package include.
+- `src/attack_flow_api/main.py`: conditional router mount (the pivot settings router, when `PIVOT_DATABASE_URL` is set).
+- `pyproject.toml`: `pivot` group (includes `cryptography` for stored secrets), `afp` script, package include.
 - `deploy/nginx/*.conf`: `/explorer/` location.
 - `README.md`: one-line pointer to `docs/pivot/`.
 
@@ -383,7 +383,7 @@ Views:
 - CI: extend `.github/workflows/build.yml` with a pivot job (service container for AGE).
 
 ## 14. Security and compliance
-- No credentials in repo. Provider keys stay as in the upstream `.env`.
+- No credentials in repo. Provider keys stay as in the upstream `.env`. Search-API keys (Serper, Brave) may instead be stored encrypted in the pivot database (Fernet; master key in a local, never-overwritten file outside the database), are write-only through the API, and are masked in logs; see `search-and-settings.md`. Settings routes require `PIVOT_ADMIN_TOKEN` and are closed when it is unset.
 - Report full text is never served by the API (only `evidence_quote` ≤ 200 chars and URL).
 - TLP filter is applied at the query layer for any `public=true` request and on all exports; the default for exports is `public=true`.
 - ATT&CK Terms of Use attribution in the Explorer footer and README.

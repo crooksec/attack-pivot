@@ -1,4 +1,5 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version as package_version
 import logging
@@ -41,7 +42,23 @@ def create_api_router() -> APIRouter:
     router.include_router(health_router)
     router.include_router(chat_router)
     router.include_router(jobs_router)
+    _include_pivot_routes(router)
     return router
+
+
+def _include_pivot_routes(router: APIRouter) -> None:
+    """Mount the ATT&CK-pivot routes when a pivot database is configured (docs/pivot/SPEC.md)."""
+    if not os.environ.get("PIVOT_DATABASE_URL"):
+        return
+    try:
+        from attack_pivot.api.settings import router as pivot_settings_router
+    except ImportError:
+        logging.getLogger("attack_flow_api.startup").warning(
+            "PIVOT_DATABASE_URL is set but the pivot dependencies are not installed; "
+            "pivot routes are not mounted"
+        )
+        return
+    router.include_router(pivot_settings_router)
 
 
 @asynccontextmanager

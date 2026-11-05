@@ -37,6 +37,7 @@ def test_init_creates_spec_schema_and_graph(scratch_db_url):
             "0005_triage_llm_log",
             "0006_dedupe_candidate",
             "0007_review",
+            "0008_settings_search",
         ]
         assert SPEC_TABLES <= _tables(conn)
         graphs = [
@@ -56,7 +57,7 @@ def test_migrate_is_idempotent(scratch_db_url):
             conn.execute("SELECT count(*) AS n FROM pivot.schema_migration").fetchone()[
                 "n"
             ]
-            == 7
+            == 8
         )
 
 
