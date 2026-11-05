@@ -1,6 +1,6 @@
 # Search discovery and Settings
 
-Find report URLs with Serper or Brave, review them, and fetch only what a licence-reviewed source covers. Options and API keys are set in Settings (the CLI today, the Explorer page next).
+Find report URLs with Serper or Brave, review them, and fetch only what a licence-reviewed source covers. Options and API keys are set in Settings: the `afp settings` CLI or the Explorer's Settings page.
 
 ## Secrets
 
@@ -52,3 +52,17 @@ A search result is a pointer, not permission. `afp search fetch` goes through `c
 | `GET /pivot/settings` | options (with description, value, default) and secret status |
 | `PUT /pivot/settings/options/{key}` `{"value": …}` / `DELETE` | set / reset an option |
 | `PUT /pivot/settings/secrets/{name}` `{"value": "…"}` / `DELETE` | store / remove a secret; responses carry status only |
+
+## Explorer Settings page
+
+`src/attack_pivot_explorer/` (Vue 3 + Vite + TS + Pinia + vitest; versions match the Builder's) currently holds only this page.
+
+```bash
+cd src/attack_pivot_explorer
+npm ci
+npm run dev          # http://localhost:5173, /api proxied to http://127.0.0.1:8000 (EXPLORER_DEV_API to change)
+npm run test:unit
+npm run build        # type-check + production build; EXPLORER_BASE_URL sets the base path
+```
+
+Start the API with `PIVOT_DATABASE_URL` and `PIVOT_ADMIN_TOKEN` set, open the page, paste the token, Connect. The token is kept in `sessionStorage` for the tab only. Key fields are password inputs, cleared after saving; the page shows only "Stored", "From deployment" or "Not set". For a build served from another origin set `VITE_API_BASE_URL`.
