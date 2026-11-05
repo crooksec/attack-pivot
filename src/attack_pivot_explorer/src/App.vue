@@ -19,6 +19,7 @@ import SettingsView from '@/views/SettingsView.vue'
 
 <style>
 :root {
+  color-scheme: light dark;
   --bg: #ffffff;
   --fg: #1c2024;
   --muted: #5b6570;
